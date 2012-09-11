@@ -29,7 +29,6 @@ class PriceTest(unittest.TestCase):
         self.assertGreater(self.twenty_btc, self.ten_btc)
 
     def test_invalid_comparison(self):
-        self.assertRaises(TypeError, lambda: self.ten_btc < 3)
         self.assertRaises(ValueError,
                           lambda: self.ten_btc < self.thirty_dollars)
 

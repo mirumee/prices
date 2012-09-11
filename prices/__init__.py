@@ -1,7 +1,7 @@
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 import operator
 
-__version__ = '2012.9.0'
+__version__ = '2012.9.1'
 
 
 class price(object):
@@ -74,9 +74,10 @@ class price(object):
     def tax(self):
         return self.gross - self.net
 
-    def quantize(self, exp):
+    def quantize(self, exp, rounding=ROUND_HALF_UP):
         exp = Decimal(exp)
-        return price(net=self.net.quantize(exp), gross=self.gross.quantize(exp),
+        return price(net=self.net.quantize(exp, rounding=rounding),
+                     gross=self.gross.quantize(exp, rounding=rounding),
                      currency=self.currency, previous=self, modifier=exp,
                      operation=price.quantize)
 
