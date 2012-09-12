@@ -30,4 +30,4 @@ And being helpful::
     >>> p += price(50)
     >>> p += lineartax('1.23', '23% VAT')
     >>> inspect_price(p)
-    "price(Decimal('1.99'), currency=None) + price(Decimal('50'), currency=None) + lineartax(Decimal('1.23'), name='23% VAT')"
+    "price('1.99', currency=None) + price('50', currency=None) + lineartax('1.23', name='23% VAT')"

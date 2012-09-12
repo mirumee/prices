@@ -25,9 +25,9 @@ class price(object):
 
     def __repr__(self):
         if self.net == self.gross:
-            return 'price(%r, currency=%r)' % (self.net, self.currency)
+            return 'price(%r, currency=%r)' % (str(self.net), self.currency)
         return ('price(net=%r, gross=%r, currency=%r)' %
-                (self.net, self.gross, self.currency))
+                (str(self.net), str(self.gross), self.currency))
 
     def __lt__(self, other):
         if isinstance(other, price):
@@ -204,7 +204,7 @@ class lineartax(tax):
         self.name = name or self.name
 
     def __repr__(self):
-        return 'lineartax(%r, name=%r)' % (self.multiplier, self.name)
+        return 'lineartax(%r, name=%r)' % (str(self.multiplier), self.name)
 
     def __lt__(self, other):
         if not isinstance(other, lineartax):
@@ -231,7 +231,7 @@ def inspect_price(price_obj):
             if op is operator.__mul__:
                 return '(%s) * %r' % (format_inspect(op1), op2)
             if op == price.quantize:
-                return '(%s).quantize(%r)' % (format_inspect(op1), op2)
+                return '(%s).quantize(%r)' % (format_inspect(op1), str(op2))
             return '%s + %s' % (format_inspect(op1), format_inspect(op2))
         return repr(data)
     return format_inspect(price_obj.inspect())

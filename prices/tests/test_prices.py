@@ -53,7 +53,7 @@ class PriceTest(unittest.TestCase):
         p = ((self.ten_btc + self.twenty_btc) * 5 + tax).quantize('0.01')
         self.assertEqual(
             inspect_price(p),
-            "((price(Decimal('10'), currency='BTC') + price(Decimal('20'), currency='BTC')) * 5 + lineartax(Decimal('1.2345678'), name='Silly Tax')).quantize(Decimal('0.01'))")
+            "((price('10', currency='BTC') + price('20', currency='BTC')) * 5 + lineartax('1.2345678', name='Silly Tax')).quantize('0.01')")
 
     def test_elements(self):
         tax = lineartax('1.2345678', name='Silly Tax')
