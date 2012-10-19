@@ -1,10 +1,10 @@
 from decimal import Decimal, ROUND_HALF_UP
 import operator
 
-__version__ = '2012.9.1'
+__version__ = '2012.10.1'
 
 
-class price(object):
+class Price(object):
     gross = Decimal('NaN')
     gross_base = Decimal('NaN')
     net = Decimal('NaN')
@@ -25,12 +25,12 @@ class price(object):
 
     def __repr__(self):
         if self.net == self.gross:
-            return 'price(%r, currency=%r)' % (str(self.net), self.currency)
-        return ('price(net=%r, gross=%r, currency=%r)' %
+            return 'Price(%r, currency=%r)' % (str(self.net), self.currency)
+        return ('Price(net=%r, gross=%r, currency=%r)' %
                 (str(self.net), str(self.gross), self.currency))
 
     def __lt__(self, other):
-        if isinstance(other, price):
+        if isinstance(other, Price):
             if self.currency != other.currency:
                 raise ValueError('Cannot compare prices in %r and %r' %
                                  (self.currency, other.currency))
@@ -41,7 +41,7 @@ class price(object):
         return self < other or self == other
 
     def __eq__(self, other):
-        if isinstance(other, price):
+        if isinstance(other, Price):
             return (self.gross == other.gross and
                     self.net == other.net and
                     self.currency == other.currency)
@@ -53,19 +53,19 @@ class price(object):
     def __mul__(self, other):
         price_net = self.net * other
         price_gross = self.gross * other
-        return price(net=price_net, gross=price_gross, currency=self.currency,
+        return Price(net=price_net, gross=price_gross, currency=self.currency,
                      previous=self, modifier=other, operation=operator.__mul__)
 
     def __add__(self, other):
-        if isinstance(other, pricemodifier):
+        if isinstance(other, PriceModifier):
             return other.apply(self)
-        if isinstance(other, price):
+        if isinstance(other, Price):
             if other.currency != self.currency:
                 raise ValueError('Cannot add price in %r to %r' %
                                  (self.currency, other.currency))
             price_net = self.net + other.net
             price_gross = self.gross + other.gross
-            return price(net=price_net, gross=price_gross,
+            return Price(net=price_net, gross=price_gross,
                          currency=self.currency, previous=self, modifier=other,
                          operation=operator.__add__)
         return NotImplemented
@@ -76,10 +76,10 @@ class price(object):
 
     def quantize(self, exp, rounding=ROUND_HALF_UP):
         exp = Decimal(exp)
-        return price(net=self.net.quantize(exp, rounding=rounding),
+        return Price(net=self.net.quantize(exp, rounding=rounding),
                      gross=self.gross.quantize(exp, rounding=rounding),
                      currency=self.currency, previous=self, modifier=exp,
-                     operation=price.quantize)
+                     operation=Price.quantize)
 
     def inspect(self):
         if self.previous:
@@ -95,8 +95,10 @@ class price(object):
             modifiers = [self.modifier]
         return self.previous.elements() + modifiers
 
+price = Price
 
-class pricerange(object):
+
+class PriceRange(object):
 
     min_price = None
     max_price = None
@@ -115,33 +117,33 @@ class pricerange(object):
 
     def __repr__(self):
         if self.max_price == self.min_price:
-            return 'pricerange(%r)' % (self.min_price,)
-        return ('pricerange(%r, %r)' %
+            return 'PriceRange(%r)' % (self.min_price,)
+        return ('PriceRange(%r, %r)' %
                 (self.min_price, self.max_price))
 
     def __add__(self, other):
-        if isinstance(other, pricemodifier):
-            return pricerange(min_price=other.apply(self.min_price),
+        if isinstance(other, PriceModifier):
+            return PriceRange(min_price=other.apply(self.min_price),
                               max_price=other.apply(self.max_price))
-        if isinstance(other, price):
+        if isinstance(other, Price):
             if other.currency != self.min_price.currency:
                 raise ValueError("Cannot add pricerange in %r to price in %r" %
                                  (self.min_price.currency, other.currency))
             min_price = self.min_price + other
             max_price = self.max_price + other
-            return pricerange(min_price=min_price, max_price=max_price)
-        elif isinstance(other, pricerange):
+            return PriceRange(min_price=min_price, max_price=max_price)
+        elif isinstance(other, PriceRange):
             if other.min_price.currency != self.min_price.currency:
                 raise ValueError('Cannot add priceranges in %r and %r' %
                                  (self.min_price.currency,
                                   other.min_price.currency))
             min_price = self.min_price + other.min_price
             max_price = self.max_price + other.max_price
-            return pricerange(min_price=min_price, max_price=max_price)
+            return PriceRange(min_price=min_price, max_price=max_price)
         return NotImplemented
 
     def __eq__(self, other):
-        if isinstance(other, pricerange):
+        if isinstance(other, PriceRange):
             return (self.min_price == other.min_price and
                     self.max_price == other.max_price)
         return False
@@ -150,7 +152,7 @@ class pricerange(object):
         return not self == other
 
     def __contains__(self, item):
-        if not isinstance(item, price):
+        if not isinstance(item, Price):
             raise TypeError('in <pricerange> requires price as left operand,'
                             ' not %s' % (type(item),))
         return self.min_price <= item <= self.max_price
@@ -164,10 +166,12 @@ class pricerange(object):
             min_price = self.min_price
         if max_price is None:
             max_price = self.max_price
-        return pricerange(min_price=min_price, max_price=max_price)
+        return PriceRange(min_price=min_price, max_price=max_price)
+
+pricerange = PriceRange
 
 
-class pricemodifier(object):
+class PriceModifier(object):
 
     name = None
     net = Decimal('0')
@@ -176,26 +180,30 @@ class pricemodifier(object):
     def apply(self, price):
         raise NotImplementedError()
 
+pricemodifier = PriceModifier
 
-class tax(pricemodifier):
+
+class Tax(PriceModifier):
     '''
     A generic tax class, provided so all taxers have a common base.
     '''
     name = None
 
     def apply(self, price_obj):
-        return price(net=price_obj.net,
-                     gross=self.calculate_gross(price_obj),
+        return Price(net=price_obj.net,
+                     gross=price_obj.gross + self.calculate_tax(price_obj),
                      currency=price_obj.currency,
                      previous=price_obj,
                      modifier=self,
                      operation=operator.__add__)
 
-    def calculate_gross(self, price_obj):
+    def calculate_tax(self, price_obj):
         raise NotImplementedError()
 
+tax = Tax
 
-class lineartax(tax):
+
+class LinearTax(Tax):
     '''
     A linear tax, modifies .
     '''
@@ -204,15 +212,15 @@ class lineartax(tax):
         self.name = name or self.name
 
     def __repr__(self):
-        return 'lineartax(%r, name=%r)' % (str(self.multiplier), self.name)
+        return 'LinearTax(%r, name=%r)' % (str(self.multiplier), self.name)
 
     def __lt__(self, other):
-        if not isinstance(other, lineartax):
+        if not isinstance(other, LinearTax):
             raise TypeError('Cannot compare lineartax to %r' % (other,))
         return self.multiplier < other.multiplier
 
     def __eq__(self, other):
-        if isinstance(other, lineartax):
+        if isinstance(other, LinearTax):
             return (self.multiplier == other.multiplier and
                     self.name == other.name)
         return False
@@ -220,8 +228,10 @@ class lineartax(tax):
     def __ne__(self, other):
         return not self == other
 
-    def calculate_gross(self, price_obj):
+    def calculate_tax(self, price_obj):
         return price_obj.gross * self.multiplier
+
+lineartax = LinearTax
 
 
 def inspect_price(price_obj):
@@ -230,7 +240,7 @@ def inspect_price(price_obj):
             op1, op, op2 = data
             if op is operator.__mul__:
                 return '(%s) * %r' % (format_inspect(op1), op2)
-            if op == price.quantize:
+            if op == Price.quantize:
                 return '(%s).quantize(%r)' % (format_inspect(op1), str(op2))
             return '%s + %s' % (format_inspect(op1), format_inspect(op2))
         return repr(data)

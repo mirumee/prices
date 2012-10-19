@@ -42,7 +42,7 @@ class PriceTest(unittest.TestCase):
                           lambda: self.ten_btc + self.thirty_dollars)
 
     def test_tax(self):
-        tax = lineartax(2, name='2x Tax')
+        tax = lineartax(1, name='2x Tax')
         p = self.ten_btc + tax
         self.assertEqual(p.net, self.ten_btc.net)
         self.assertEqual(p.gross, self.ten_btc.gross * 2)
@@ -53,7 +53,7 @@ class PriceTest(unittest.TestCase):
         p = ((self.ten_btc + self.twenty_btc) * 5 + tax).quantize('0.01')
         self.assertEqual(
             inspect_price(p),
-            "((price('10', currency='BTC') + price('20', currency='BTC')) * 5 + lineartax('1.2345678', name='Silly Tax')).quantize('0.01')")
+            "((Price('10', currency='BTC') + Price('20', currency='BTC')) * 5 + LinearTax('1.2345678', name='Silly Tax')).quantize('0.01')")
 
     def test_elements(self):
         tax = lineartax('1.2345678', name='Silly Tax')
@@ -112,7 +112,7 @@ class PriceRangeTest(unittest.TestCase):
 
     def test_tax(self):
         tax_name = '2x Tax'
-        tax = lineartax(2, name=tax_name)
+        tax = lineartax(1, name=tax_name)
         pr = self.range_ten_twenty + tax
         self.assertEqual(pr.min_price.net, self.ten_btc.net)
         self.assertEqual(pr.min_price.gross, self.ten_btc.gross * 2)
