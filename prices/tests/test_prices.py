@@ -17,6 +17,10 @@ class PriceTest(unittest.TestCase):
     def test_adding_non_price_object_fails(self):
         self.assertRaises(TypeError, lambda p: p + 10, self.ten_btc)
 
+    def test_subtraction(self):
+        res = self.twenty_btc - self.ten_btc
+        self.assertEqual(res, price(10, currency='BTC'))
+
     def test_multiplication(self):
         p1 = self.ten_btc * 5
         self.assertEqual(p1.net, 50)
@@ -87,6 +91,11 @@ class PriceRangeTest(unittest.TestCase):
 
     def test_invalid_addition(self):
         self.assertRaises(TypeError, lambda: self.range_ten_twenty + 10)
+
+    def test_subtraction(self):
+        pr1 = self.range_thirty_forty - self.range_ten_twenty
+        self.assertEqual(pr1.min_price, self.thirty_btc - self.ten_btc)
+        self.assertEqual(pr1.max_price, self.forty_btc - self.twenty_btc)
 
     def test_valid_membership(self):
         '''

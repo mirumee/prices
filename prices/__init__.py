@@ -1,10 +1,11 @@
 from decimal import Decimal, ROUND_HALF_UP
 import operator
 
-__version__ = '2012.10.1'
+__version__ = '2012.11'
 
 
 class Price(object):
+
     gross = Decimal('NaN')
     gross_base = Decimal('NaN')
     net = Decimal('NaN')
@@ -68,6 +69,18 @@ class Price(object):
             return Price(net=price_net, gross=price_gross,
                          currency=self.currency, previous=self, modifier=other,
                          operation=operator.__add__)
+        return NotImplemented
+
+    def __sub__(self, other):
+        if isinstance(other, Price):
+            if other.currency != self.currency:
+                raise ValueError('Cannot subtract prices in %r from %r' %
+                                 (other.currency, self.currency))
+            price_net = self.net - other.net
+            price_gross = self.gross - other.gross
+            return Price(net=price_net, gross=price_gross,
+                         currency=self.currency, previous=self, modifier=other,
+                         operation=operator.__sub__)
         return NotImplemented
 
     @property
@@ -139,6 +152,25 @@ class PriceRange(object):
                                   other.min_price.currency))
             min_price = self.min_price + other.min_price
             max_price = self.max_price + other.max_price
+            return PriceRange(min_price=min_price, max_price=max_price)
+        return NotImplemented
+
+    def __sub__(self, other):
+        if isinstance(other, Price):
+            if other.currency != self.min_price.currency:
+                raise ValueError("Cannot subtract price in %r from pricerange"
+                                 " in %r" %
+                                 (other.min_price.currency, self.currency))
+            min_price = self.min_price - other
+            max_price = self.max_price - other
+            return PriceRange(min_price=min_price, max_price=max_price)
+        elif isinstance(other, PriceRange):
+            if other.min_price.currency != self.min_price.currency:
+                raise ValueError('Cannot subtract pricerange in %r from %r' %
+                                 (other.min_price.currency,
+                                  self.min_price.currency))
+            min_price = self.min_price - other.min_price
+            max_price = self.max_price - other.max_price
             return PriceRange(min_price=min_price, max_price=max_price)
         return NotImplemented
 
@@ -240,8 +272,10 @@ def inspect_price(price_obj):
             op1, op, op2 = data
             if op is operator.__mul__:
                 return '(%s) * %r' % (format_inspect(op1), op2)
-            if op == Price.quantize:
+            elif op == Price.quantize:
                 return '(%s).quantize(%r)' % (format_inspect(op1), str(op2))
+            elif op is operator.__sub__:
+                return '%s - %s' % (format_inspect(op1), format_inspect(op2))
             return '%s + %s' % (format_inspect(op1), format_inspect(op2))
         return repr(data)
     return format_inspect(price_obj.inspect())
