@@ -206,8 +206,6 @@ pricerange = PriceRange
 class PriceModifier(object):
 
     name = None
-    net = Decimal('0')
-    gross = Decimal('0')
 
     def apply(self, price):
         raise NotImplementedError()
