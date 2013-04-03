@@ -1,8 +1,6 @@
 from decimal import Decimal, ROUND_HALF_UP
 import operator
 
-__version__ = '2012.11'
-
 
 class Price(object):
 
