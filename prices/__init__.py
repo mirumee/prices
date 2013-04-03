@@ -108,8 +108,6 @@ class Price(object):
             modifiers = [self.modifier]
         return self.previous.elements() + modifiers
 
-price = Price
-
 
 class PriceRange(object):
 
@@ -200,8 +198,6 @@ class PriceRange(object):
             max_price = self.max_price
         return PriceRange(min_price=min_price, max_price=max_price)
 
-pricerange = PriceRange
-
 
 class PriceModifier(object):
 
@@ -209,8 +205,6 @@ class PriceModifier(object):
 
     def apply(self, price):
         raise NotImplementedError()
-
-pricemodifier = PriceModifier
 
 
 class Tax(PriceModifier):
@@ -229,8 +223,6 @@ class Tax(PriceModifier):
 
     def calculate_tax(self, price_obj):
         raise NotImplementedError()
-
-tax = Tax
 
 
 class LinearTax(Tax):
@@ -260,8 +252,6 @@ class LinearTax(Tax):
 
     def calculate_tax(self, price_obj):
         return price_obj.gross * self.multiplier
-
-lineartax = LinearTax
 
 
 def inspect_price(price_obj):

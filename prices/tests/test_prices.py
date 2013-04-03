@@ -1,15 +1,15 @@
 import decimal
 import unittest
 
-from prices import price, pricerange, lineartax, inspect_price
+from prices import Price, PriceRange, LinearTax, inspect_price
 
 
 class PriceTest(unittest.TestCase):
 
     def setUp(self):
-        self.ten_btc = price(10, currency='BTC')
-        self.twenty_btc = price(20, currency='BTC')
-        self.thirty_dollars = price(30, currency='USD')
+        self.ten_btc = Price(10, currency='BTC')
+        self.twenty_btc = Price(20, currency='BTC')
+        self.thirty_dollars = Price(30, currency='USD')
 
     def test_basics(self):
         self.assertEqual(self.ten_btc.net, self.ten_btc.gross)
@@ -19,7 +19,7 @@ class PriceTest(unittest.TestCase):
 
     def test_subtraction(self):
         res = self.twenty_btc - self.ten_btc
-        self.assertEqual(res, price(10, currency='BTC'))
+        self.assertEqual(res, Price(10, currency='BTC'))
 
     def test_multiplication(self):
         p1 = self.ten_btc * 5
@@ -46,21 +46,21 @@ class PriceTest(unittest.TestCase):
                           lambda: self.ten_btc + self.thirty_dollars)
 
     def test_tax(self):
-        tax = lineartax(1, name='2x Tax')
+        tax = LinearTax(1, name='2x Tax')
         p = self.ten_btc + tax
         self.assertEqual(p.net, self.ten_btc.net)
         self.assertEqual(p.gross, self.ten_btc.gross * 2)
         self.assertEqual(p.currency, self.ten_btc.currency)
 
     def test_inspect(self):
-        tax = lineartax('1.2345678', name='Silly Tax')
+        tax = LinearTax('1.2345678', name='Silly Tax')
         p = ((self.ten_btc + self.twenty_btc) * 5 + tax).quantize('0.01')
         self.assertEqual(
             inspect_price(p),
             "((Price('10', currency='BTC') + Price('20', currency='BTC')) * 5 + LinearTax('1.2345678', name='Silly Tax')).quantize('0.01')")
 
     def test_elements(self):
-        tax = lineartax('1.2345678', name='Silly Tax')
+        tax = LinearTax('1.2345678', name='Silly Tax')
         p = ((self.ten_btc + self.twenty_btc) * 5 + tax).quantize('0.01')
         self.assertEqual(
             p.elements(),
@@ -70,12 +70,12 @@ class PriceTest(unittest.TestCase):
 class PriceRangeTest(unittest.TestCase):
 
     def setUp(self):
-        self.ten_btc = price(10, currency='BTC')
-        self.twenty_btc = price(20, currency='BTC')
-        self.thirty_btc = price(30, currency='BTC')
-        self.forty_btc = price(40, currency='BTC')
-        self.range_ten_twenty = pricerange(self.ten_btc, self.twenty_btc)
-        self.range_thirty_forty = pricerange(self.thirty_btc, self.forty_btc)
+        self.ten_btc = Price(10, currency='BTC')
+        self.twenty_btc = Price(20, currency='BTC')
+        self.thirty_btc = Price(30, currency='BTC')
+        self.forty_btc = Price(40, currency='BTC')
+        self.range_ten_twenty = PriceRange(self.ten_btc, self.twenty_btc)
+        self.range_thirty_forty = PriceRange(self.thirty_btc, self.forty_btc)
 
     def test_basics(self):
         self.assertEqual(self.range_ten_twenty.min_price, self.ten_btc)
@@ -121,7 +121,7 @@ class PriceRangeTest(unittest.TestCase):
 
     def test_tax(self):
         tax_name = '2x Tax'
-        tax = lineartax(1, name=tax_name)
+        tax = LinearTax(1, name=tax_name)
         pr = self.range_ten_twenty + tax
         self.assertEqual(pr.min_price.net, self.ten_btc.net)
         self.assertEqual(pr.min_price.gross, self.ten_btc.gross * 2)
