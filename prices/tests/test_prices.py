@@ -66,6 +66,9 @@ class PriceTest(unittest.TestCase):
             p.elements(),
             [self.ten_btc, self.twenty_btc, 5, tax, decimal.Decimal('0.01')])
 
+    def test_float_passed(self):
+        self.assertRaises(ValueError, Price, 0.1)
+
 
 class PriceRangeTest(unittest.TestCase):
 
