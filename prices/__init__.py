@@ -13,8 +13,8 @@ class Price(object):
     def __init__(self, net, gross=None, currency=None, previous=None,
                  modifier=None, operation=None):
         if type(net) is float:
-            raise ValueError(("You should never ever pass a float to anything"
-                              "even remotely touching money!"))
+            raise ValueError("You should never ever pass a float to anything"
+                             " even remotely touching money!")
         self.net = Decimal(net)
         if gross is not None:
             self.gross = Decimal(gross)
