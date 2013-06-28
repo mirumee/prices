@@ -1,5 +1,6 @@
 from decimal import Decimal, ROUND_HALF_UP
 import operator
+import warnings
 
 
 class Price(object):
@@ -12,6 +13,11 @@ class Price(object):
 
     def __init__(self, net, gross=None, currency=None, previous=None,
                  modifier=None, operation=None):
+        if isinstance(net, float) or isinstance(gross, float):
+            warnings.warn(
+                RuntimeWarning(
+                    'You should never use floats when dealing with prices!'),
+                stacklevel=2)
         self.net = Decimal(net)
         if gross is not None:
             self.gross = Decimal(gross)
