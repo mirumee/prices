@@ -41,8 +41,8 @@ class PriceTest(unittest.TestCase):
         self.assertNotEqual(p1, 10)
 
     def test_comparison(self):
-        self.assertLess(self.ten_btc, self.twenty_btc)
-        self.assertGreater(self.twenty_btc, self.ten_btc)
+        self.assertTrue(self.ten_btc < self.twenty_btc)
+        self.assertTrue(self.twenty_btc > self.ten_btc)
 
     def test_invalid_comparison(self):
         self.assertRaises(ValueError,
