@@ -14,12 +14,15 @@ class PriceTest(unittest.TestCase):
     def test_basics(self):
         self.assertEqual(self.ten_btc.net, self.ten_btc.gross)
 
-    def test_adding_non_price_object_fails(self):
-        self.assertRaises(TypeError, lambda p: p + 10, self.ten_btc)
-
     def test_subtraction(self):
         res = self.twenty_btc - self.ten_btc
         self.assertEqual(res, Price(10, currency='BTC'))
+
+    def test_invalid_subtraction(self):
+        self.assertRaises(ValueError,
+                          lambda: self.ten_btc - self.thirty_dollars)
+        self.assertRaises(TypeError,
+                          lambda: self.ten_btc - 1)
 
     def test_multiplication(self):
         p1 = self.ten_btc * 5
@@ -56,16 +59,18 @@ class PriceTest(unittest.TestCase):
     def test_invalid_addition(self):
         self.assertRaises(ValueError,
                           lambda: self.ten_btc + self.thirty_dollars)
+        self.assertRaises(TypeError,
+                          lambda: self.ten_btc + 1)
 
     def test_tax(self):
         p = Price(net='20', gross='30', currency='BTC')
         self.assertEqual(p.tax, 10)
 
     def test_inspect(self):
-        p = ((self.ten_btc + self.twenty_btc) * 5).quantize('0.01')
+        p = ((self.ten_btc + self.twenty_btc) * 5 - self.ten_btc).quantize('0.01')
         self.assertEqual(
             inspect_price(p),
-            "((Price('10', currency='BTC') + Price('20', currency='BTC')) * 5).quantize('0.01')")
+            "((Price('10', currency='BTC') + Price('20', currency='BTC')) * 5 - Price('10', currency='BTC')).quantize('0.01')")
 
     def test_elements(self):
         p = ((self.ten_btc + self.twenty_btc) * 5).quantize('0.01')
@@ -92,6 +97,17 @@ class PriceRangeTest(unittest.TestCase):
         self.assertEqual(self.range_ten_twenty.min_price, self.ten_btc)
         self.assertEqual(self.range_ten_twenty.max_price, self.twenty_btc)
 
+    def test_construction(self):
+        pr = PriceRange(self.ten_btc)
+        self.assertEqual(pr.min_price, self.ten_btc)
+        self.assertEqual(pr.max_price, self.ten_btc)
+
+    def test_invalid_construction(self):
+        p = Price(10, currency='USD')
+        self.assertRaises(ValueError, lambda: PriceRange(self.ten_btc, p))
+        self.assertRaises(ValueError, lambda: PriceRange(self.twenty_btc,
+                                                         self.ten_btc))
+
     def test_addition(self):
         pr1 = self.range_ten_twenty + self.range_thirty_forty
         self.assertEqual(pr1.min_price, self.ten_btc + self.thirty_btc)
@@ -101,6 +117,10 @@ class PriceRangeTest(unittest.TestCase):
         self.assertEqual(pr2.max_price, self.twenty_btc + self.ten_btc)
 
     def test_invalid_addition(self):
+        p = Price(10, currency='USD')
+        pr = PriceRange(p)
+        self.assertRaises(ValueError, lambda: self.range_ten_twenty + pr)
+        self.assertRaises(ValueError, lambda: self.range_ten_twenty + p)
         self.assertRaises(TypeError, lambda: self.range_ten_twenty + 10)
 
     def test_subtraction(self):
@@ -112,9 +132,11 @@ class PriceRangeTest(unittest.TestCase):
         self.assertEqual(pr2.max_price, self.forty_btc - self.ten_btc)
 
     def test_invalid_subtraction(self):
-        pr = self.range_thirty_forty
         p = Price(10, currency='USD')
-        self.assertRaises(ValueError, lambda: pr - p)
+        pr = PriceRange(p)
+        self.assertRaises(ValueError, lambda: self.range_thirty_forty - pr)
+        self.assertRaises(ValueError, lambda: self.range_thirty_forty - p)
+        self.assertRaises(TypeError, lambda: self.range_thirty_forty - 1)
 
     def test_equality(self):
         pr1 = PriceRange(self.ten_btc, self.twenty_btc)

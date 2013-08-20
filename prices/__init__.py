@@ -14,8 +14,7 @@ class Price(object):
     def __init__(self, net, gross=None, currency=None, previous=None,
                  modifier=None, operation=None):
         if isinstance(net, float) or isinstance(gross, float):
-            # pragma: nocover
-            warnings.warn(
+            warnings.warn(  # pragma: no cover
                 RuntimeWarning(
                     'You should never use floats when dealing with prices!'),
                 stacklevel=2)
@@ -41,7 +40,7 @@ class Price(object):
                 raise ValueError('Cannot compare prices in %r and %r' %
                                  (self.currency, other.currency))
             return self.gross < other.gross
-        return NotImplemented  # pragma: nocover
+        return NotImplemented  # pragma: no cover
 
     def __le__(self, other):
         return self < other or self == other
@@ -86,7 +85,7 @@ class Price(object):
             return Price(net=price_net, gross=price_gross,
                          currency=self.currency, previous=self, modifier=other,
                          operation=operator.__sub__)
-        return NotImplemented  # pragma: nocover
+        return NotImplemented  # pragma: no cover
 
     @property
     def tax(self):
@@ -123,12 +122,12 @@ class PriceRange(object):
         self.min_price = min_price
         if max_price is None:
             max_price = min_price
-        if min_price > max_price:
-            raise ValueError('Cannot create a pricerange from %r to %r' %
-                             (min_price, max_price))
         if min_price.currency != max_price.currency:
             raise ValueError('Cannot create a pricerange as %r and %r use'
                              ' different currencies' % (min_price, max_price))
+        if min_price > max_price:
+            raise ValueError('Cannot create a pricerange from %r to %r' %
+                             (min_price, max_price))
         self.max_price = max_price
 
     def __repr__(self):
@@ -156,7 +155,7 @@ class PriceRange(object):
             min_price = self.min_price + other.min_price
             max_price = self.max_price + other.max_price
             return PriceRange(min_price=min_price, max_price=max_price)
-        return NotImplemented  # pragma: nocover
+        return NotImplemented
 
     def __sub__(self, other):
         if isinstance(other, Price):
@@ -175,7 +174,7 @@ class PriceRange(object):
             min_price = self.min_price - other.min_price
             max_price = self.max_price - other.max_price
             return PriceRange(min_price=min_price, max_price=max_price)
-        return NotImplemented  # pragma: nocover
+        return NotImplemented
 
     def __eq__(self, other):
         if isinstance(other, PriceRange):
@@ -209,7 +208,7 @@ class PriceModifier(object):
     name = None
 
     def apply(self, price):
-        raise NotImplementedError()  # pragma: nocover
+        raise NotImplementedError()
 
 
 class Tax(PriceModifier):
@@ -225,7 +224,7 @@ class Tax(PriceModifier):
                      operation=operator.__add__)
 
     def calculate_tax(self, price_obj):
-        raise NotImplementedError()  # pragma: nocover
+        raise NotImplementedError()
 
 
 class LinearTax(Tax):
