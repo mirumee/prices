@@ -1,6 +1,10 @@
 Prices: Python price handling for humans
 ========================================
 
+[![Build Status](https://secure.travis-ci.org/mirumee/prices.png)](https://travis-ci.org/mirumee/prices) [![Coverage](https://coveralls.io/repos/mirumee/prices/badge.png)](https://coveralls.io/r/mirumee/prices)
+
+------
+
 ```python
 from prices import Price, PriceRange, LinearTax
 p = Price('1.99')
