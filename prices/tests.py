@@ -203,8 +203,8 @@ class LinearTaxTest(unittest.TestCase):
     def test_comparison(self):
         tax1 = LinearTax(1)
         tax2 = LinearTax(2)
-        self.assertLess(tax1, tax2)
-        self.assertGreater(tax2, tax1)
+        self.assertTrue(tax1 < tax2)
+        self.assertTrue(tax2 > tax1)
         self.assertRaises(TypeError, lambda: tax1 < 10)
 
     def test_equality(self):
