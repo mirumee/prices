@@ -14,6 +14,7 @@ class Price(object):
     def __init__(self, net, gross=None, currency=None, previous=None,
                  modifier=None, operation=None):
         if isinstance(net, float) or isinstance(gross, float):
+            # pragma: nocover
             warnings.warn(
                 RuntimeWarning(
                     'You should never use floats when dealing with prices!'),
@@ -40,7 +41,7 @@ class Price(object):
                 raise ValueError('Cannot compare prices in %r and %r' %
                                  (self.currency, other.currency))
             return self.gross < other.gross
-        return NotImplemented
+        return NotImplemented  # pragma: nocover
 
     def __le__(self, other):
         return self < other or self == other
@@ -85,7 +86,7 @@ class Price(object):
             return Price(net=price_net, gross=price_gross,
                          currency=self.currency, previous=self, modifier=other,
                          operation=operator.__sub__)
-        return NotImplemented
+        return NotImplemented  # pragma: nocover
 
     @property
     def tax(self):
@@ -155,14 +156,14 @@ class PriceRange(object):
             min_price = self.min_price + other.min_price
             max_price = self.max_price + other.max_price
             return PriceRange(min_price=min_price, max_price=max_price)
-        return NotImplemented
+        return NotImplemented  # pragma: nocover
 
     def __sub__(self, other):
         if isinstance(other, Price):
             if other.currency != self.min_price.currency:
                 raise ValueError("Cannot subtract price in %r from pricerange"
                                  " in %r" %
-                                 (other.min_price.currency, self.currency))
+                                 (other.currency, self.min_price.currency))
             min_price = self.min_price - other
             max_price = self.max_price - other
             return PriceRange(min_price=min_price, max_price=max_price)
@@ -174,7 +175,7 @@ class PriceRange(object):
             min_price = self.min_price - other.min_price
             max_price = self.max_price - other.max_price
             return PriceRange(min_price=min_price, max_price=max_price)
-        return NotImplemented
+        return NotImplemented  # pragma: nocover
 
     def __eq__(self, other):
         if isinstance(other, PriceRange):
@@ -208,15 +209,13 @@ class PriceModifier(object):
     name = None
 
     def apply(self, price):
-        raise NotImplementedError()
+        raise NotImplementedError()  # pragma: nocover
 
 
 class Tax(PriceModifier):
     '''
     A generic tax class, provided so all taxers have a common base.
     '''
-    name = None
-
     def apply(self, price_obj):
         return Price(net=price_obj.net,
                      gross=price_obj.gross + self.calculate_tax(price_obj),
@@ -226,12 +225,12 @@ class Tax(PriceModifier):
                      operation=operator.__add__)
 
     def calculate_tax(self, price_obj):
-        raise NotImplementedError()
+        raise NotImplementedError()  # pragma: nocover
 
 
 class LinearTax(Tax):
     '''
-    A linear tax, modifies .
+    Adds a certain fraction on top of the price.
     '''
     def __init__(self, multiplier, name=None):
         self.multiplier = Decimal(multiplier)
@@ -256,6 +255,29 @@ class LinearTax(Tax):
 
     def calculate_tax(self, price_obj):
         return price_obj.gross * self.multiplier
+
+
+class FixedDiscount(PriceModifier):
+    '''
+    Adds a fixed amount to the price.
+    '''
+    def __init__(self, amount, name=None):
+        self.amount = amount
+        self.name = name or self.name
+
+    def __repr__(self):
+        return 'FixedDiscount(%r, name=%r)' % (self.amount, self.name)
+
+    def apply(self, price_obj):
+        if price_obj.currency != self.amount.currency:
+            raise ValueError('Cannot apply a discount in %r to a price in %r' %
+                             (self.amount.currency, price_obj.currency))
+        return Price(net=price_obj.net - self.amount.net,
+                     gross=price_obj.gross - self.amount.gross,
+                     currency=price_obj.currency,
+                     previous=price_obj,
+                     modifier=self,
+                     operation=operator.__add__)
 
 
 def inspect_price(price_obj):
