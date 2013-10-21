@@ -4,7 +4,6 @@ import prices
 from setuptools import setup
 
 CLASSIFIERS = [
-    'Development Status :: 5 - Production/Stable',
     'Intended Audience :: Developers',
     'License :: OSI Approved :: BSD License',
     'Operating System :: OS Independent',
@@ -22,7 +21,7 @@ setup(name='prices',
       author_email='hello@mirumee.com',
       description='Python price handling for humans',
       license='BSD',
-      version='0.4.2',
+      version='0.5',
       url='http://satchless.com/',
       packages=['prices'],
       test_suite='prices.tests',
