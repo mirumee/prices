@@ -4,12 +4,12 @@ import operator
 import warnings
 
 
-class AuditTrail(namedtuple('AuditTrail', 'left operator right')):
+class History(namedtuple('History', 'left operator right')):
 
     def __repr__(self):
-        left = self.left.audit if isinstance(self.left, Price) else None
+        left = self.left.history if isinstance(self.left, Price) else None
         left = left or self.left
-        right = self.right.audit if isinstance(self.right, Price) else None
+        right = self.right.history if isinstance(self.right, Price) else None
         right = right or self.right
         if self.operator is operator.__mul__:
             return '(%r * %r)' % (left, right)
@@ -20,9 +20,9 @@ class AuditTrail(namedtuple('AuditTrail', 'left operator right')):
         return '(%r + %r)' % (left, right)
 
 
-class Price(namedtuple('Price', 'net gross currency audit')):
+class Price(namedtuple('Price', 'net gross currency history')):
 
-    def __new__(cls, net, gross=None, currency=None, audit=None):
+    def __new__(cls, net, gross=None, currency=None, history=None):
         if isinstance(net, float) or isinstance(gross, float):
             warnings.warn(  # pragma: no cover
                 RuntimeWarning(
@@ -33,7 +33,7 @@ class Price(namedtuple('Price', 'net gross currency audit')):
             gross = Decimal(gross)
         else:
             gross = net
-        return super(Price, cls).__new__(cls, net, gross, currency, audit)
+        return super(Price, cls).__new__(cls, net, gross, currency, history)
 
     def __repr__(self):
         if self.net == self.gross:
@@ -65,9 +65,9 @@ class Price(namedtuple('Price', 'net gross currency audit')):
     def __mul__(self, other):
         price_net = self.net * other
         price_gross = self.gross * other
-        audit = AuditTrail(self, operator.__mul__, other)
+        history = History(self, operator.__mul__, other)
         return Price(net=price_net, gross=price_gross, currency=self.currency,
-                     audit=audit)
+                     history=history)
 
     def __add__(self, other):
         if isinstance(other, PriceModifier):
@@ -78,9 +78,9 @@ class Price(namedtuple('Price', 'net gross currency audit')):
                                  (self.currency, other.currency))
             price_net = self.net + other.net
             price_gross = self.gross + other.gross
-            audit = AuditTrail(self, operator.__add__, other)
+            history = History(self, operator.__add__, other)
             return Price(net=price_net, gross=price_gross,
-                         currency=self.currency, audit=audit)
+                         currency=self.currency, history=history)
         return NotImplemented
 
     def __sub__(self, other):
@@ -90,9 +90,9 @@ class Price(namedtuple('Price', 'net gross currency audit')):
                                  (other.currency, self.currency))
             price_net = self.net - other.net
             price_gross = self.gross - other.gross
-            audit = AuditTrail(self, operator.__sub__, other)
+            history = History(self, operator.__sub__, other)
             return Price(net=price_net, gross=price_gross,
-                         currency=self.currency, audit=audit)
+                         currency=self.currency, history=history)
         return NotImplemented
 
     @property
@@ -101,25 +101,25 @@ class Price(namedtuple('Price', 'net gross currency audit')):
 
     def quantize(self, exp, rounding=ROUND_HALF_UP):
         exp = Decimal(exp)
-        audit = AuditTrail(self, Price.quantize, exp)
+        history = History(self, Price.quantize, exp)
         return Price(net=self.net.quantize(exp, rounding=rounding),
                      gross=self.gross.quantize(exp, rounding=rounding),
-                     currency=self.currency, audit=audit)
+                     currency=self.currency, history=history)
 
     def elements(self):
-        if not self.audit:
+        if not self.history:
             yield self
         else:
-            if hasattr(self.audit.left, 'elements'):
-                for el in self.audit.left.elements():
+            if hasattr(self.history.left, 'elements'):
+                for el in self.history.left.elements():
                     yield el
             else:
-                yield self.audit.left
-            if hasattr(self.audit.right, 'elements'):
-                for el in self.audit.right.elements():
+                yield self.history.left
+            if hasattr(self.history.right, 'elements'):
+                for el in self.history.right.elements():
                     yield el
             else:
-                yield self.audit.right
+                yield self.history.right
 
 
 class PriceRange(namedtuple('PriceRange', 'min_price max_price')):
@@ -220,10 +220,10 @@ class Tax(PriceModifier):
     A generic tax class, provided so all taxers have a common base.
     '''
     def apply(self, price_obj):
-        audit = AuditTrail(price_obj, operator.__add__, self)
+        history = History(price_obj, operator.__add__, self)
         return Price(net=price_obj.net,
                      gross=price_obj.gross + self.calculate_tax(price_obj),
-                     currency=price_obj.currency, audit=audit)
+                     currency=price_obj.currency, history=history)
 
     def calculate_tax(self, price_obj):
         raise NotImplementedError()
@@ -273,11 +273,11 @@ class FixedDiscount(PriceModifier):
         if price_obj.currency != self.amount.currency:
             raise ValueError('Cannot apply a discount in %r to a price in %r' %
                              (self.amount.currency, price_obj.currency))
-        audit = AuditTrail(price_obj, operator.__add__, self)
+        history = History(price_obj, operator.__add__, self)
         return Price(net=price_obj.net - self.amount.net,
                      gross=price_obj.gross - self.amount.gross,
-                     currency=price_obj.currency, audit=audit)
+                     currency=price_obj.currency, history=history)
 
 
 def inspect_price(price_obj):
-    return repr(price_obj.audit or price_obj)
+    return repr(price_obj.history or price_obj)
