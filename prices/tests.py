@@ -70,12 +70,12 @@ class PriceTest(unittest.TestCase):
         p = ((self.ten_btc + self.twenty_btc) * 5 - self.ten_btc).quantize('0.01')
         self.assertEqual(
             inspect_price(p),
-            "((Price('10', currency='BTC') + Price('20', currency='BTC')) * 5 - Price('10', currency='BTC')).quantize('0.01')")
+            "((((Price('10', currency='BTC') + Price('20', currency='BTC')) * 5) - Price('10', currency='BTC'))).quantize(Decimal('0.01'))")
 
     def test_elements(self):
         p = ((self.ten_btc + self.twenty_btc) * 5).quantize('0.01')
         self.assertEqual(
-            p.elements(),
+            list(p.elements()),
             [self.ten_btc, self.twenty_btc, 5, decimal.Decimal('0.01')])
 
     def test_repr(self):

@@ -1,32 +1,39 @@
+from collections import namedtuple
 from decimal import Decimal, ROUND_HALF_UP
 import operator
 import warnings
 
 
-class Price(object):
+class AuditTrail(namedtuple('AuditTrail', 'left operator right')):
 
-    gross = Decimal('NaN')
-    gross_base = Decimal('NaN')
-    net = Decimal('NaN')
-    net_base = Decimal('NaN')
-    currency = None
+    def __repr__(self):
+        left = self.left.audit if isinstance(self.left, Price) else None
+        left = left or self.left
+        right = self.right.audit if isinstance(self.right, Price) else None
+        right = right or self.right
+        if self.operator is operator.__mul__:
+            return '(%r * %r)' % (left, right)
+        elif self.operator == Price.quantize:
+            return '(%r).quantize(%r)' % (left, right)
+        elif self.operator is operator.__sub__:
+            return '(%r - %r)' % (left, right)
+        return '(%r + %r)' % (left, right)
 
-    def __init__(self, net, gross=None, currency=None, previous=None,
-                 modifier=None, operation=None):
+
+class Price(namedtuple('Price', 'net gross currency audit')):
+
+    def __new__(cls, net, gross=None, currency=None, audit=None):
         if isinstance(net, float) or isinstance(gross, float):
             warnings.warn(  # pragma: no cover
                 RuntimeWarning(
                     'You should never use floats when dealing with prices!'),
                 stacklevel=2)
-        self.net = Decimal(net)
+        net = Decimal(net)
         if gross is not None:
-            self.gross = Decimal(gross)
+            gross = Decimal(gross)
         else:
-            self.gross = self.net
-        self.currency = currency
-        self.previous = previous
-        self.modifier = modifier
-        self.operation = operation
+            gross = net
+        return super(Price, cls).__new__(cls, net, gross, currency, audit)
 
     def __repr__(self):
         if self.net == self.gross:
@@ -40,7 +47,7 @@ class Price(object):
                 raise ValueError('Cannot compare prices in %r and %r' %
                                  (self.currency, other.currency))
             return self.gross < other.gross
-        return NotImplemented  # pragma: no cover
+        return NotImplemented
 
     def __le__(self, other):
         return self < other or self == other
@@ -58,8 +65,9 @@ class Price(object):
     def __mul__(self, other):
         price_net = self.net * other
         price_gross = self.gross * other
+        audit = AuditTrail(self, operator.__mul__, other)
         return Price(net=price_net, gross=price_gross, currency=self.currency,
-                     previous=self, modifier=other, operation=operator.__mul__)
+                     audit=audit)
 
     def __add__(self, other):
         if isinstance(other, PriceModifier):
@@ -70,9 +78,9 @@ class Price(object):
                                  (self.currency, other.currency))
             price_net = self.net + other.net
             price_gross = self.gross + other.gross
+            audit = AuditTrail(self, operator.__add__, other)
             return Price(net=price_net, gross=price_gross,
-                         currency=self.currency, previous=self, modifier=other,
-                         operation=operator.__add__)
+                         currency=self.currency, audit=audit)
         return NotImplemented
 
     def __sub__(self, other):
@@ -82,10 +90,10 @@ class Price(object):
                                  (other.currency, self.currency))
             price_net = self.net - other.net
             price_gross = self.gross - other.gross
+            audit = AuditTrail(self, operator.__sub__, other)
             return Price(net=price_net, gross=price_gross,
-                         currency=self.currency, previous=self, modifier=other,
-                         operation=operator.__sub__)
-        return NotImplemented  # pragma: no cover
+                         currency=self.currency, audit=audit)
+        return NotImplemented
 
     @property
     def tax(self):
@@ -93,33 +101,30 @@ class Price(object):
 
     def quantize(self, exp, rounding=ROUND_HALF_UP):
         exp = Decimal(exp)
+        audit = AuditTrail(self, Price.quantize, exp)
         return Price(net=self.net.quantize(exp, rounding=rounding),
                      gross=self.gross.quantize(exp, rounding=rounding),
-                     currency=self.currency, previous=self, modifier=exp,
-                     operation=Price.quantize)
-
-    def inspect(self):
-        if self.previous:
-            return (self.previous.inspect(), self.operation, self.modifier)
-        return self
+                     currency=self.currency, audit=audit)
 
     def elements(self):
-        if not self.previous:
-            return [self]
-        if hasattr(self.modifier, 'elements'):
-            modifiers = self.modifier.elements()
+        if not self.audit:
+            yield self
         else:
-            modifiers = [self.modifier]
-        return self.previous.elements() + modifiers
+            if hasattr(self.audit.left, 'elements'):
+                for el in self.audit.left.elements():
+                    yield el
+            else:
+                yield self.audit.left
+            if hasattr(self.audit.right, 'elements'):
+                for el in self.audit.right.elements():
+                    yield el
+            else:
+                yield self.audit.right
 
 
-class PriceRange(object):
+class PriceRange(namedtuple('PriceRange', 'min_price max_price')):
 
-    min_price = None
-    max_price = None
-
-    def __init__(self, min_price, max_price=None):
-        self.min_price = min_price
+    def __new__(cls, min_price, max_price=None):
         if max_price is None:
             max_price = min_price
         if min_price.currency != max_price.currency:
@@ -128,13 +133,12 @@ class PriceRange(object):
         if min_price > max_price:
             raise ValueError('Cannot create a pricerange from %r to %r' %
                              (min_price, max_price))
-        self.max_price = max_price
+        return super(PriceRange, cls).__new__(cls, min_price, max_price)
 
     def __repr__(self):
         if self.max_price == self.min_price:
             return 'PriceRange(%r)' % (self.min_price,)
-        return ('PriceRange(%r, %r)' %
-                (self.min_price, self.max_price))
+        return 'PriceRange(%r, %r)' % (self.min_price, self.max_price)
 
     def __add__(self, other):
         if isinstance(other, PriceModifier):
@@ -216,12 +220,10 @@ class Tax(PriceModifier):
     A generic tax class, provided so all taxers have a common base.
     '''
     def apply(self, price_obj):
+        audit = AuditTrail(price_obj, operator.__add__, self)
         return Price(net=price_obj.net,
                      gross=price_obj.gross + self.calculate_tax(price_obj),
-                     currency=price_obj.currency,
-                     previous=price_obj,
-                     modifier=self,
-                     operation=operator.__add__)
+                     currency=price_obj.currency, audit=audit)
 
     def calculate_tax(self, price_obj):
         raise NotImplementedError()
@@ -271,24 +273,11 @@ class FixedDiscount(PriceModifier):
         if price_obj.currency != self.amount.currency:
             raise ValueError('Cannot apply a discount in %r to a price in %r' %
                              (self.amount.currency, price_obj.currency))
+        audit = AuditTrail(price_obj, operator.__add__, self)
         return Price(net=price_obj.net - self.amount.net,
                      gross=price_obj.gross - self.amount.gross,
-                     currency=price_obj.currency,
-                     previous=price_obj,
-                     modifier=self,
-                     operation=operator.__add__)
+                     currency=price_obj.currency, audit=audit)
 
 
 def inspect_price(price_obj):
-    def format_inspect(data):
-        if isinstance(data, tuple):
-            op1, op, op2 = data
-            if op is operator.__mul__:
-                return '(%s) * %r' % (format_inspect(op1), op2)
-            elif op == Price.quantize:
-                return '(%s).quantize(%r)' % (format_inspect(op1), str(op2))
-            elif op is operator.__sub__:
-                return '%s - %s' % (format_inspect(op1), format_inspect(op2))
-            return '%s + %s' % (format_inspect(op1), format_inspect(op2))
-        return repr(data)
-    return format_inspect(price_obj.inspect())
+    return repr(price_obj.audit or price_obj)
