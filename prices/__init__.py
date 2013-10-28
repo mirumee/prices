@@ -63,11 +63,17 @@ class Price(namedtuple('Price', 'net gross currency history')):
         return not self == other
 
     def __mul__(self, other):
-        price_net = self.net * other
-        price_gross = self.gross * other
+        try:
+            price_net = self.net * other
+            price_gross = self.gross * other
+        except TypeError:
+            return NotImplemented
         history = History(self, operator.__mul__, other)
         return Price(net=price_net, gross=price_gross, currency=self.currency,
                      history=history)
+
+    def __rmul__(self, other):
+        return self * other
 
     def __add__(self, other):
         if isinstance(other, PriceModifier):

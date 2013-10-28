@@ -30,8 +30,12 @@ class PriceTest(unittest.TestCase):
         p1 = self.ten_btc * 5
         self.assertEqual(p1.net, 50)
         self.assertEqual(p1.gross, 50)
-        p2 = self.ten_btc * 5
+        p2 = 5 * self.ten_btc
         self.assertEqual(p1, p2)
+
+    def test_invalid_multiplication(self):
+        self.assertRaises(TypeError,
+                          lambda: self.ten_btc * None)
 
     def test_equality(self):
         p1 = Price(net='10', gross='20', currency='USD')
@@ -69,10 +73,12 @@ class PriceTest(unittest.TestCase):
         self.assertEqual(p.tax, 10)
 
     def test_inspect(self):
-        p = ((self.ten_btc + self.twenty_btc) * 5 - self.ten_btc).quantize('0.01')
+        p = ((self.ten_btc + self.twenty_btc) * 5 - self.ten_btc)
+        p = p.quantize('0.01')
         self.assertEqual(
             inspect_price(p),
-            "((((Price('10', currency='BTC') + Price('20', currency='BTC')) * 5) - Price('10', currency='BTC'))).quantize(Decimal('0.01'))")
+            "((((Price('10', currency='BTC') + Price('20', currency='BTC'))"
+            " * 5) - Price('10', currency='BTC'))).quantize(Decimal('0.01'))")
 
     def test_elements(self):
         p1 = ((self.ten_btc + self.twenty_btc) * 5).quantize('0.01')
@@ -84,7 +90,8 @@ class PriceTest(unittest.TestCase):
 
     def test_repr(self):
         p = Price(net='10', gross='20', currency='GBP')
-        self.assertEqual(repr(p), "Price(net='10', gross='20', currency='GBP')")
+        self.assertEqual(repr(p),
+                         "Price(net='10', gross='20', currency='GBP')")
 
 
 class PriceRangeTest(unittest.TestCase):
@@ -173,7 +180,8 @@ class PriceRangeTest(unittest.TestCase):
         pr2 = PriceRange(self.ten_btc, self.ten_btc)
         self.assertEqual(
             repr(pr1),
-            "PriceRange(Price('30', currency='BTC'), Price('40', currency='BTC'))")
+            "PriceRange(Price('30', currency='BTC'),"
+            " Price('40', currency='BTC'))")
         self.assertEqual(
             repr(pr2),
             "PriceRange(Price('10', currency='BTC'))")
