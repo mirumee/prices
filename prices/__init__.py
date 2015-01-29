@@ -17,6 +17,8 @@ class History(namedtuple('History', 'left operator right')):
             return '(%r).quantize(%r)' % (left, right)
         elif self.operator is operator.__sub__:
             return '(%r - %r)' % (left, right)
+        elif self.operator is operator.__or__:
+            return '(%r | %r)' % (left, right)
         return '(%r + %r)' % (left, right)
 
 
@@ -77,6 +79,8 @@ class Price(namedtuple('Price', 'net gross currency history')):
 
     def __add__(self, other):
         if isinstance(other, PriceModifier):
+            warnings.warn("adding PriceModifiers will be removed in 0.6",
+                          DeprecationWarning)
             return other.apply(self)
         if isinstance(other, Price):
             if other.currency != self.currency:
@@ -148,6 +152,8 @@ class PriceRange(namedtuple('PriceRange', 'min_price max_price')):
 
     def __add__(self, other):
         if isinstance(other, PriceModifier):
+            warnings.warn("adding PriceModifiers will be removed in 0.6",
+                          DeprecationWarning)
             return PriceRange(min_price=other.apply(self.min_price),
                               max_price=other.apply(self.max_price))
         if isinstance(other, Price):
@@ -217,6 +223,16 @@ class PriceModifier(object):
 
     name = None
 
+    def __ror__(self, other):
+        if isinstance(other, Price):
+            return self.apply(other)
+        elif isinstance(other, PriceRange):
+            return PriceRange(
+                min_price=self.apply(other.min_price),
+                max_price=self.apply(other.max_price))
+        else:
+            return NotImplemented
+
     def apply(self, price):
         raise NotImplementedError()
 
@@ -226,7 +242,7 @@ class Tax(PriceModifier):
     A generic tax class, provided so all taxers have a common base.
     '''
     def apply(self, price_obj):
-        history = History(price_obj, operator.__add__, self)
+        history = History(price_obj, operator.__or__, self)
         return Price(net=price_obj.net,
                      gross=price_obj.gross + self.calculate_tax(price_obj),
                      currency=price_obj.currency, history=history)
@@ -279,7 +295,7 @@ class FixedDiscount(PriceModifier):
         if price_obj.currency != self.amount.currency:
             raise ValueError('Cannot apply a discount in %r to a price in %r' %
                              (self.amount.currency, price_obj.currency))
-        history = History(price_obj, operator.__add__, self)
+        history = History(price_obj, operator.__or__, self)
         return Price(net=price_obj.net - self.amount.net,
                      gross=price_obj.gross - self.amount.gross,
                      currency=price_obj.currency, history=history)

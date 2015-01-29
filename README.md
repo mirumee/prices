@@ -35,7 +35,7 @@ And being helpful:
 from prices import Price, LinearTax, inspect_price
 p = Price('1.99')
 p += Price(50)
-p += LinearTax('0.23', '23% VAT')
+p |= LinearTax('0.23', '23% VAT')
 print inspect_price(p)
-# "Price('1.99', currency=None) + Price('50', currency=None) + LinearTax('0.23', name='23% VAT')"
+# "Price('1.99', currency=None) + Price('50', currency=None) | LinearTax('0.23', name='23% VAT')"
 ```

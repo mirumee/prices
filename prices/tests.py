@@ -196,7 +196,7 @@ class LinearTaxTest(unittest.TestCase):
 
     def test_price(self):
         tax = LinearTax(1, name='2x Tax')
-        p = self.ten_btc + tax
+        p = self.ten_btc | tax
         self.assertEqual(p.net, self.ten_btc.net)
         self.assertEqual(p.gross, self.ten_btc.gross * 2)
         self.assertEqual(p.currency, self.ten_btc.currency)
@@ -204,7 +204,7 @@ class LinearTaxTest(unittest.TestCase):
     def test_pricerange(self):
         tax_name = '2x Tax'
         tax = LinearTax(1, name=tax_name)
-        pr = self.range_ten_twenty + tax
+        pr = self.range_ten_twenty | tax
         self.assertEqual(pr.min_price.net, self.ten_btc.net)
         self.assertEqual(pr.min_price.gross, self.ten_btc.gross * 2)
         self.assertEqual(pr.min_price.currency, self.ten_btc.currency)
@@ -241,7 +241,7 @@ class FixedDiscountTest(unittest.TestCase):
 
     def test_discount(self):
         discount = FixedDiscount(self.ten_btc, name='Ten off')
-        p = self.thirty_btc + discount
+        p = self.thirty_btc | discount
         self.assertEqual(p.net, 20)
         self.assertEqual(p.gross, 20)
         self.assertEqual(p.currency, 'BTC')
