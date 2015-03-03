@@ -13,6 +13,8 @@ class History(namedtuple('History', 'left operator right')):
         right = right or self.right
         if self.operator is operator.__mul__:
             return '(%r * %r)' % (left, right)
+        elif self.operator is operator.__truediv__:
+            return '(%r / %r)' % (left, right)
         elif self.operator == Price.quantize:
             return '(%r).quantize(%r)' % (left, right)
         elif self.operator is operator.__sub__:
@@ -51,8 +53,11 @@ class Price(namedtuple('Price', 'net gross currency history')):
             return self.gross < other.gross
         return NotImplemented
 
+    def __gt__(self, other):
+        return NotImplemented
+
     def __le__(self, other):
-        return self < other or self == other
+        return NotImplemented
 
     def __eq__(self, other):
         if isinstance(other, Price):
@@ -62,7 +67,7 @@ class Price(namedtuple('Price', 'net gross currency history')):
         return False
 
     def __ne__(self, other):
-        return not self == other
+        return NotImplemented
 
     def __mul__(self, other):
         try:
@@ -76,6 +81,19 @@ class Price(namedtuple('Price', 'net gross currency history')):
 
     def __rmul__(self, other):
         return self * other
+
+    def __truediv__(self, other):
+        try:
+            price_net = self.net / other
+            price_gross = self.gross / other
+        except TypeError:
+            return NotImplemented
+        history = History(self, operator.__truediv__, other)
+        return Price(net=price_net, gross=price_gross, currency=self.currency,
+                     history=history)
+
+    def __div__(self, other):
+        return self.__truediv__(other)
 
     def __add__(self, other):
         if isinstance(other, PriceModifier):
@@ -199,7 +217,7 @@ class PriceRange(namedtuple('PriceRange', 'min_price max_price')):
         return False
 
     def __ne__(self, other):
-        return not self == other
+        return NotImplemented
 
     def __contains__(self, item):
         if not isinstance(item, Price):
@@ -263,9 +281,12 @@ class LinearTax(Tax):
         return 'LinearTax(%r, name=%r)' % (str(self.multiplier), self.name)
 
     def __lt__(self, other):
-        if not isinstance(other, LinearTax):
-            raise TypeError('Cannot compare lineartax to %r' % (other,))
-        return self.multiplier < other.multiplier
+        if isinstance(other, LinearTax):
+            return self.multiplier < other.multiplier
+        return NotImplemented
+
+    def __gt__(self, other):
+        return NotImplemented
 
     def __eq__(self, other):
         if isinstance(other, LinearTax):
@@ -274,7 +295,7 @@ class LinearTax(Tax):
         return False
 
     def __ne__(self, other):
-        return not self == other
+        return NotImplemented
 
     def calculate_tax(self, price_obj):
         return price_obj.gross * self.multiplier

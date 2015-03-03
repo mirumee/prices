@@ -33,6 +33,11 @@ class PriceTest(unittest.TestCase):
         p2 = 5 * self.ten_btc
         self.assertEqual(p1, p2)
 
+    def test_division(self):
+        p = self.ten_btc / 5
+        self.assertEqual(p.net, 2)
+        self.assertEqual(p.gross, 2)
+
     def test_invalid_multiplication(self):
         self.assertRaises(TypeError,
                           lambda: self.ten_btc * None)
@@ -51,11 +56,15 @@ class PriceTest(unittest.TestCase):
 
     def test_comparison(self):
         self.assertTrue(self.ten_btc < self.twenty_btc)
+        self.assertTrue(self.ten_btc <= self.ten_btc)
         self.assertTrue(self.twenty_btc > self.ten_btc)
+        self.assertTrue(self.ten_btc >= self.ten_btc)
 
     def test_invalid_comparison(self):
         self.assertRaises(ValueError,
                           lambda: self.ten_btc < self.thirty_dollars)
+        self.assertRaises(ValueError,
+                          lambda: self.ten_btc > self.thirty_dollars)
 
     def test_addition(self):
         p = self.ten_btc + self.twenty_btc
@@ -217,7 +226,6 @@ class LinearTaxTest(unittest.TestCase):
         tax2 = LinearTax(2)
         self.assertTrue(tax1 < tax2)
         self.assertTrue(tax2 > tax1)
-        self.assertRaises(TypeError, lambda: tax1 < 10)
 
     def test_equality(self):
         tax1 = LinearTax(1)
@@ -248,7 +256,7 @@ class FixedDiscountTest(unittest.TestCase):
 
     def test_currency_mismatch(self):
         discount = FixedDiscount(self.ten_usd)
-        self.assertRaises(ValueError, lambda: self.ten_btc + discount)
+        self.assertRaises(ValueError, lambda: self.ten_btc | discount)
 
     def test_repr(self):
         discount = FixedDiscount(self.ten_usd, name='Ten off')
