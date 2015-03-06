@@ -53,7 +53,6 @@ class PriceTest(unittest.TestCase):
         self.assertNotEqual(p1, p4)
         self.assertNotEqual(p1, p5)
         self.assertNotEqual(p1, 10)
-        self.assertTrue(p1 == p2)
         self.assertFalse(p1 != p2)
 
     def test_comparison(self):
@@ -169,7 +168,6 @@ class PriceRangeTest(unittest.TestCase):
         self.assertNotEqual(pr1, pr3)
         self.assertNotEqual(pr1, pr4)
         self.assertNotEqual(pr1, self.ten_btc)
-        self.assertTrue(pr1 == pr2)
         self.assertFalse(pr1 != pr2)
 
     def test_membership(self):
