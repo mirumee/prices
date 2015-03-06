@@ -9,7 +9,7 @@ Prices: Python price handling for humans
 from prices import Price, PriceRange, LinearTax
 p = Price('1.99')
 p += Price(50)
-p += LinearTax('0.23', '23% VAT')
+p |= LinearTax('0.23', '23% VAT')
 print p.quantize('0.01').gross
 # Decimal('63.95')
 pr = PriceRange(Price(50), Price(100))
