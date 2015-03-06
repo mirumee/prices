@@ -67,7 +67,7 @@ class Price(namedtuple('Price', 'net gross currency history')):
         return False
 
     def __ne__(self, other):
-        return NotImplemented
+        return not self == other
 
     def __mul__(self, other):
         try:
@@ -217,7 +217,7 @@ class PriceRange(namedtuple('PriceRange', 'min_price max_price')):
         return False
 
     def __ne__(self, other):
-        return NotImplemented
+        return not self == other
 
     def __contains__(self, item):
         if not isinstance(item, Price):
