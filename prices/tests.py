@@ -103,6 +103,10 @@ class PriceTest(unittest.TestCase):
         self.assertEqual(repr(p),
                          "Price(net='10', gross='20', currency='GBP')")
 
+    def test_zero_repr(self):
+        p = Price(net='0E+10', currency='GBP')
+        self.assertEqual(repr(p), "Price('0', currency='GBP')")
+
 
 class PriceRangeTest(unittest.TestCase):
 
