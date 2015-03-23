@@ -71,7 +71,7 @@ class Price(namedtuple('Price', 'net gross currency history')):
 
     def __mul__(self, other):
         if isinstance(other, Price):
-            raise ValueError('You can\t multiply two Price objects')
+            raise TypeError('You can\'t multiply two Price objects')
         try:
             price_net = self.net * other
             price_gross = self.gross * other

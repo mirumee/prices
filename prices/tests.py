@@ -34,7 +34,7 @@ class PriceTest(unittest.TestCase):
         self.assertEqual(p1, p2)
 
     def test_invalid_multiplication(self):
-        self.assertRaises(ValueError,
+        self.assertRaises(TypeError,
                           lambda: self.ten_btc * self.twenty_btc)
 
     def test_division(self):
