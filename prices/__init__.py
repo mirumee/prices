@@ -33,13 +33,15 @@ class Price(namedtuple('Price', 'net gross currency history')):
                     'You should never use floats when dealing with prices!'),
                 stacklevel=2)
         net = Decimal(net)
-        if net._int == '0' and net._exp != '0':
+        net_tuple = net.as_tuple()
+        if net_tuple.digits == (0,) and net_tuple.exponent != 0:
             # Make sure that we're using standard notation
             net = Decimal(0)
         if gross is not None:
             gross = Decimal(gross)
             # Make sure that we're using standard notation
-            if gross._int == '0' and gross._exp != '0':
+            gross_tuple = gross.as_tuple()
+            if gross_tuple.digits == (0,) and gross_tuple.exponent != 0:
                 gross = Decimal(0)
         else:
             gross = net
