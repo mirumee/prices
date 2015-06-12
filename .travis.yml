@@ -7,7 +7,7 @@ python:
 install:
   - python setup.py install
   - pip install coverage
+  - pip install codecov
 script: coverage run setup.py test
 after_success:
-  - pip install coveralls
-  - coveralls
+  - codecov
