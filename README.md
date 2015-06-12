@@ -1,7 +1,7 @@
 Prices: Python price handling for humans
 ========================================
 
-[![Build Status](https://secure.travis-ci.org/mirumee/prices.png)](https://travis-ci.org/mirumee/prices) [![Coverage](https://coveralls.io/repos/mirumee/prices/badge.png)](https://coveralls.io/r/mirumee/prices)
+[![Build Status](https://secure.travis-ci.org/mirumee/prices.png)](https://travis-ci.org/mirumee/prices) [![codecov.io](http://codecov.io/github/mirumee/prices/coverage.svg?branch=master)](http://codecov.io/github/mirumee/prices?branch=master)
 
 ------
 
