@@ -125,6 +125,9 @@ class Price(namedtuple('Price', 'net gross currency history')):
                          currency=self.currency, history=history)
         return NotImplemented
 
+    def as_tuple(self):
+        return self.net.as_tuple()
+
     @property
     def tax(self):
         return self.gross - self.net
