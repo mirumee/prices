@@ -324,5 +324,26 @@ class FixedDiscount(PriceModifier):
                      currency=price_obj.currency, history=history)
 
 
+class PercentageDiscount(PriceModifier):
+    '''
+    Reduces price by a percentage value
+    '''
+    def __init__(self, value, name=None):
+        self.value = value
+        self.name = name or self.name
+
+    def __repr__(self):
+        return 'PercentageDiscount(%r, name=%r)' % (self.value, self.name)
+
+    def apply(self, price_obj):
+        history = History(price_obj, operator.__or__, self)
+        percent = Decimal('0.01')
+        net_discount = price_obj.net * self.value * percent
+        gross_discount = price_obj.gross * self.value * percent
+        return Price(net=price_obj.net - net_discount,
+                     gross=price_obj.gross - gross_discount,
+                     currency=price_obj.currency, history=history)
+
+
 def inspect_price(price_obj):
     return repr(price_obj.history or price_obj)

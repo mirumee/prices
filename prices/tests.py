@@ -3,7 +3,7 @@ import operator
 import unittest
 
 from prices import (FixedDiscount, History, LinearTax, Price, PriceRange,
-                    inspect_price)
+                    inspect_price, PercentageDiscount)
 
 
 class PriceTest(unittest.TestCase):
@@ -270,6 +270,24 @@ class FixedDiscountTest(unittest.TestCase):
             repr(discount),
             "FixedDiscount(Price('10', currency='USD'), name='Ten off')")
 
+
+class PercentageDiscountTest(unittest.TestCase):
+
+    def setUp(self):
+        self.test_amount = Price(100, currency='BTC')
+
+    def test_discount(self):
+        discount = PercentageDiscount(value=10, name='Ten percent off')
+        p = self.test_amount | discount
+        self.assertEqual(p.net, 90)
+        self.assertEqual(p.gross, 90)
+        self.assertEqual(p.currency, 'BTC')
+
+    def test_repr(self):
+        discount = PercentageDiscount(value=10, name='Ten percent off')
+        self.assertEqual(
+            repr(discount),
+            "PercentageDiscount(10, name='Ten percent off')")
 
 if __name__ == '__main__':
     unittest.main()
