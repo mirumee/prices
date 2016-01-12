@@ -1,5 +1,3 @@
-from __future__ import division
-
 from collections import namedtuple
 from decimal import Decimal, ROUND_HALF_UP
 import operator
@@ -346,8 +344,8 @@ class FractionDiscount(PriceModifier):
 
 class PercentageDiscount(FractionDiscount):
     def __init__(self, value, name):
-        value = Decimal(value)
-        super(PercentageDiscount, self).__init__(factor=value/100, name=name)
+        factor = Decimal(value) / 100
+        super(PercentageDiscount, self).__init__(factor=factor, name=name)
 
 
 def inspect_price(price_obj):
