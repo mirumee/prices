@@ -342,7 +342,7 @@ class FractionalDiscount(PriceModifier):
                      currency=price_obj.currency, history=history)
 
 
-def percentage_discount(value, name):
+def percentage_discount(value, name=None):
     factor = Decimal(value) / 100
     return FractionalDiscount(factor, name)
 

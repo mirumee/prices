@@ -3,7 +3,7 @@ import operator
 import unittest
 
 from prices import (FixedDiscount, FractionalDiscount, History, LinearTax,
-                    Price, PriceRange, percentage_discount, inspect_price)
+                    Price, PriceRange, inspect_price, percentage_discount)
 
 
 class PriceTest(unittest.TestCase):
