@@ -342,10 +342,9 @@ class FractionalDiscount(PriceModifier):
                      currency=price_obj.currency, history=history)
 
 
-class PercentageDiscount(FractionalDiscount):
-    def __init__(self, value, name):
-        factor = Decimal(value) / 100
-        super(PercentageDiscount, self).__init__(factor=factor, name=name)
+def percentage_discount(value, name):
+    factor = Decimal(value) / 100
+    return FractionalDiscount(factor, name)
 
 
 def inspect_price(price_obj):
