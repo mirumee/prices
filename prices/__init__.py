@@ -324,14 +324,14 @@ class FixedDiscount(PriceModifier):
                      currency=price_obj.currency, history=history)
 
 
-class FractionDiscount(PriceModifier):
+class FractionalDiscount(PriceModifier):
 
     def __init__(self, factor, name=None):
         self.name = name or self.name
         self.factor = Decimal(factor)
 
     def __repr__(self):
-        return 'FractionDiscount(%r, name=%r)' % (self.factor, self.name)
+        return 'FractionalDiscount(%r, name=%r)' % (self.factor, self.name)
 
     def apply(self, price_obj):
         history = History(price_obj, operator.__or__, self)
@@ -342,7 +342,7 @@ class FractionDiscount(PriceModifier):
                      currency=price_obj.currency, history=history)
 
 
-class PercentageDiscount(FractionDiscount):
+class PercentageDiscount(FractionalDiscount):
     def __init__(self, value, name):
         factor = Decimal(value) / 100
         super(PercentageDiscount, self).__init__(factor=factor, name=name)
