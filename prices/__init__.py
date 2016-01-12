@@ -228,10 +228,10 @@ class PriceRange(namedtuple('PriceRange', 'min_price max_price')):
         return self.min_price <= item <= self.max_price
 
     def replace(self, min_price=None, max_price=None):
-        '''
-        Return a new pricerange object with one or more properties set to
+        """
+        Return a new PriceRange object with one or more properties set to
         values passed to this method.
-        '''
+        """
         if min_price is None:
             min_price = self.min_price
         if max_price is None:
@@ -258,9 +258,7 @@ class PriceModifier(object):
 
 
 class Tax(PriceModifier):
-    '''
-    A generic tax class, provided so all taxers have a common base.
-    '''
+    """A generic tax class, provided so all taxers have a common base."""
     def apply(self, price_obj):
         history = History(price_obj, operator.__or__, self)
         return Price(net=price_obj.net,
@@ -272,9 +270,7 @@ class Tax(PriceModifier):
 
 
 class LinearTax(Tax):
-    '''
-    Adds a certain fraction on top of the price.
-    '''
+    """Adds a certain fraction on top of the price. """
     def __init__(self, multiplier, name=None):
         self.multiplier = Decimal(multiplier)
         self.name = name or self.name
@@ -304,9 +300,7 @@ class LinearTax(Tax):
 
 
 class FixedDiscount(PriceModifier):
-    '''
-    Adds a fixed amount to the price.
-    '''
+    """Reduces price by a fixed amount."""
     def __init__(self, amount, name=None):
         self.amount = amount
         self.name = name or self.name
@@ -322,6 +316,29 @@ class FixedDiscount(PriceModifier):
         return Price(net=price_obj.net - self.amount.net,
                      gross=price_obj.gross - self.amount.gross,
                      currency=price_obj.currency, history=history)
+
+
+class FractionalDiscount(PriceModifier):
+    """Reduces price by a given fraction."""
+    def __init__(self, factor, name=None):
+        self.name = name or self.name
+        self.factor = Decimal(factor)
+
+    def __repr__(self):
+        return 'FractionalDiscount(%r, name=%r)' % (self.factor, self.name)
+
+    def apply(self, price_obj):
+        history = History(price_obj, operator.__or__, self)
+        net_discount = price_obj.net * self.factor
+        gross_discount = price_obj.gross * self.factor
+        return Price(net=price_obj.net - net_discount,
+                     gross=price_obj.gross - gross_discount,
+                     currency=price_obj.currency, history=history)
+
+
+def percentage_discount(value, name=None):
+    factor = Decimal(value) / 100
+    return FractionalDiscount(factor, name)
 
 
 def inspect_price(price_obj):

@@ -2,8 +2,8 @@ import decimal
 import operator
 import unittest
 
-from prices import (FixedDiscount, History, LinearTax, Price, PriceRange,
-                    inspect_price)
+from prices import (FixedDiscount, FractionalDiscount, History, LinearTax,
+                    Price, PriceRange, inspect_price, percentage_discount)
 
 
 class PriceTest(unittest.TestCase):
@@ -270,6 +270,37 @@ class FixedDiscountTest(unittest.TestCase):
             repr(discount),
             "FixedDiscount(Price('10', currency='USD'), name='Ten off')")
 
+
+class PercentageDiscountTest(unittest.TestCase):
+
+    def setUp(self):
+        self.test_amount = Price(100, currency='BTC')
+
+    def test_discount(self):
+        discount = percentage_discount(value=10, name='Ten percent off')
+        p = self.test_amount | discount
+        self.assertEqual(p.net, 90)
+        self.assertEqual(p.gross, 90)
+        self.assertEqual(p.currency, 'BTC')
+
+
+class FractionalDiscountTest(unittest.TestCase):
+
+    def setUp(self):
+        self.test_amount = Price(100, currency='BTC')
+
+    def test_discount(self):
+        discount = FractionalDiscount(factor='0.25')
+        p = self.test_amount | discount
+        self.assertEqual(p.net, 75)
+        self.assertEqual(p.gross, 75)
+        self.assertEqual(p.currency, 'BTC')
+
+    def test_repr(self):
+        discount = FractionalDiscount(factor='0.25', name='Test discount')
+        self.assertEqual(
+            repr(discount),
+            "FractionalDiscount(Decimal('0.25'), name='Test discount')")
 
 if __name__ == '__main__':
     unittest.main()
