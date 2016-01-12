@@ -1,3 +1,5 @@
+from __future__ import division
+
 from collections import namedtuple
 from decimal import Decimal, ROUND_HALF_UP
 import operator
@@ -324,25 +326,28 @@ class FixedDiscount(PriceModifier):
                      currency=price_obj.currency, history=history)
 
 
-class PercentageDiscount(PriceModifier):
-    '''
-    Reduces price by a percentage value
-    '''
-    def __init__(self, value, name=None):
-        self.value = value
+class FractionDiscount(PriceModifier):
+
+    def __init__(self, factor, name=None):
         self.name = name or self.name
+        self.factor = Decimal(factor)
 
     def __repr__(self):
-        return 'PercentageDiscount(%r, name=%r)' % (self.value, self.name)
+        return 'FractionDiscount(%r, name=%r)' % (self.factor, self.name)
 
     def apply(self, price_obj):
         history = History(price_obj, operator.__or__, self)
-        percent = Decimal('0.01')
-        net_discount = price_obj.net * self.value * percent
-        gross_discount = price_obj.gross * self.value * percent
+        net_discount = price_obj.net * self.factor
+        gross_discount = price_obj.gross * self.factor
         return Price(net=price_obj.net - net_discount,
                      gross=price_obj.gross - gross_discount,
                      currency=price_obj.currency, history=history)
+
+
+class PercentageDiscount(FractionDiscount):
+    def __init__(self, value, name):
+        value = Decimal(value)
+        super(PercentageDiscount, self).__init__(factor=value/100, name=name)
 
 
 def inspect_price(price_obj):
