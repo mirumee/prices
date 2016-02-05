@@ -3,6 +3,8 @@ from decimal import Decimal, ROUND_HALF_UP
 import operator
 import warnings
 
+CENTS = Decimal('.01')
+
 
 class History(namedtuple('History', 'left operator right')):
 
@@ -329,8 +331,8 @@ class FractionalDiscount(PriceModifier):
 
     def apply(self, price_obj):
         history = History(price_obj, operator.__or__, self)
-        net_discount = price_obj.net * self.factor
-        gross_discount = price_obj.gross * self.factor
+        net_discount = (price_obj.net * self.factor).quantize(CENTS)
+        gross_discount = (price_obj.gross * self.factor).quantize(CENTS)
         return Price(net=price_obj.net - net_discount,
                      gross=price_obj.gross - gross_discount,
                      currency=price_obj.currency, history=history)

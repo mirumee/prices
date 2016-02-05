@@ -42,10 +42,6 @@ class PriceTest(unittest.TestCase):
         self.assertEqual(p.net, 2)
         self.assertEqual(p.gross, 2)
 
-    def test_invalid_multiplication(self):
-        self.assertRaises(TypeError,
-                          lambda: self.ten_btc * None)
-
     def test_equality(self):
         p1 = Price(net='10', gross='20', currency='USD')
         p2 = Price(net='10', gross='20', currency='USD')
@@ -273,14 +269,20 @@ class FixedDiscountTest(unittest.TestCase):
 
 class PercentageDiscountTest(unittest.TestCase):
 
-    def setUp(self):
-        self.test_amount = Price(100, currency='BTC')
-
     def test_discount(self):
+        test_amount = Price(100, currency='BTC')
         discount = percentage_discount(value=10, name='Ten percent off')
-        p = self.test_amount | discount
+        p = test_amount | discount
         self.assertEqual(p.net, 90)
         self.assertEqual(p.gross, 90)
+        self.assertEqual(p.currency, 'BTC')
+
+    def test_precision(self):
+        test_amount = Price('1.01', currency='BTC')
+        discount = percentage_discount(value=50, name='Half off')
+        p = test_amount | discount
+        self.assertEqual(p.net, decimal.Decimal('0.51'))
+        self.assertEqual(p.net, decimal.Decimal('0.51'))
         self.assertEqual(p.currency, 'BTC')
 
 
