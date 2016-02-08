@@ -315,8 +315,8 @@ class FixedDiscount(PriceModifier):
             raise ValueError('Cannot apply a discount in %r to a price in %r' %
                              (self.amount.currency, price_obj.currency))
         history = History(price_obj, operator.__or__, self)
-        return Price(net=price_obj.net - self.amount.net,
-                     gross=price_obj.gross - self.amount.gross,
+        return Price(net=max(price_obj.net - self.amount.net, 0),
+                     gross=max(price_obj.gross - self.amount.gross, 0),
                      currency=price_obj.currency, history=history)
 
 

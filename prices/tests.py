@@ -244,24 +244,33 @@ class LinearTaxTest(unittest.TestCase):
 
 class FixedDiscountTest(unittest.TestCase):
 
-    def setUp(self):
-        self.ten_btc = Price(10, currency='BTC')
-        self.ten_usd = Price(10, currency='USD')
-        self.thirty_btc = Price(30, currency='BTC')
-
     def test_discount(self):
-        discount = FixedDiscount(self.ten_btc, name='Ten off')
-        p = self.thirty_btc | discount
+        ten_btc = Price(10, currency='BTC')
+        thirty_btc = Price(30, currency='BTC')
+        discount = FixedDiscount(ten_btc, name='Ten off')
+        p = thirty_btc | discount
         self.assertEqual(p.net, 20)
         self.assertEqual(p.gross, 20)
         self.assertEqual(p.currency, 'BTC')
 
+    def test_zero_clipping(self):
+        ten_btc = Price(10, currency='BTC')
+        thirty_btc = Price(30, currency='BTC')
+        discount = FixedDiscount(thirty_btc, name='Up to $30 OFF')
+        p = ten_btc | discount
+        self.assertEqual(p.net, 0)
+        self.assertEqual(p.gross, 0)
+        self.assertEqual(p.currency, 'BTC')
+
     def test_currency_mismatch(self):
-        discount = FixedDiscount(self.ten_usd)
-        self.assertRaises(ValueError, lambda: self.ten_btc | discount)
+        ten_btc = Price(10, currency='BTC')
+        ten_usd = Price(10, currency='USD')
+        discount = FixedDiscount(ten_usd)
+        self.assertRaises(ValueError, lambda: ten_btc | discount)
 
     def test_repr(self):
-        discount = FixedDiscount(self.ten_usd, name='Ten off')
+        ten_usd = Price(10, currency='USD')
+        discount = FixedDiscount(ten_usd, name='Ten off')
         self.assertEqual(
             repr(discount),
             "FixedDiscount(Price('10', currency='USD'), name='Ten off')")
