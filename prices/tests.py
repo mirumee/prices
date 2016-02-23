@@ -237,7 +237,6 @@ class LinearTaxTest(unittest.TestCase):
         tax1 = LinearTax(1)
         tax2 = LinearTax(2)
 
-        import pdb; pdb.set_trace()
         self.assertTrue(tax1 < tax2)
         self.assertTrue(tax2 > tax1)
 
