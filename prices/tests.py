@@ -197,6 +197,16 @@ class PriceRangeTest(unittest.TestCase):
             repr(pr2),
             "PriceRange(Price('10', currency='BTC'))")
 
+    def test_comparison(self):
+        p10 = Price(10, currency='USD')
+        p20 = Price(20, currency='USD')
+
+        self.assertTrue(p10 < p20)
+        self.assertTrue(p20 > p10)
+        self.assertTrue(p10 <= p10)
+        self.assertTrue(p10 >= p10)
+        self.assertTrue(p10 == p10)
+
 
 class LinearTaxTest(unittest.TestCase):
 
@@ -226,6 +236,8 @@ class LinearTaxTest(unittest.TestCase):
     def test_comparison(self):
         tax1 = LinearTax(1)
         tax2 = LinearTax(2)
+
+        import pdb; pdb.set_trace()
         self.assertTrue(tax1 < tax2)
         self.assertTrue(tax2 > tax1)
 
