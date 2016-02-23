@@ -55,11 +55,27 @@ class Price(namedtuple('Price', 'net gross currency history')):
             return self.gross < other.gross
         return NotImplemented
 
+    def __le__(self, other):
+        if self.__lt__(other):
+            return True
+        if self == other:
+            return True
+        return False
+
     def __gt__(self, other):
+        if isinstance(other, Price):
+            if self.currency != other.currency:
+                raise ValueError('Cannot compare prices in %r and %r' %
+                                 (self.currency, other.currency))
+            return self.gross > other.gross
         return NotImplemented
 
-    def __le__(self, other):
-        return NotImplemented
+    def __ge__(self, other):
+        if self.__gt__(other):
+            return True
+        if self == other:
+            return True
+        return False
 
     def __eq__(self, other):
         if isinstance(other, Price):
