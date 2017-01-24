@@ -1,6 +1,6 @@
 [run]
 branch = 1
-omit = */tests.py
+omit = */test*.py
 source = prices
 
 [report]
