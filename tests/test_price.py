@@ -34,8 +34,6 @@ def test_multiplication():
     assert 2 * price == price * 2
     with pytest.raises(TypeError):
         price * price
-    with pytest.raises(TypeError):
-        price * Amount(1, 'EUR')
 
 
 def test_division():

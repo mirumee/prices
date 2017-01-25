@@ -1,3 +1,5 @@
+from decimal import ROUND_DOWN
+
 import pytest
 
 from prices import Amount
@@ -25,8 +27,6 @@ def test_multiplication():
     amount = Amount(10, 'GBP') * 5
     assert amount.value == 50
     assert amount == 5 * Amount(10, 'GBP')
-    with pytest.raises(TypeError):
-        Amount(10, 'PLN') * Amount(10, 'PLN')
     with pytest.raises(TypeError):
         Amount(10, 'PLN') * None
 
@@ -62,6 +62,8 @@ def test_quantize():
     assert str(Amount(1, 'USD').quantize().value) == '1.00'
     assert str(Amount(1, 'JPY').quantize().value) == '1'
     assert str(Amount(1, 'USD').quantize('0.1').value) == '1.0'
+    assert str(Amount('1.9', 'JPY').quantize().value) == '2'
+    assert str(Amount('1.9', 'JPY').quantize(rounding=ROUND_DOWN).value) == '1'
 
 
 def test_repr():

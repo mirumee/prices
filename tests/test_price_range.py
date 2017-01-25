@@ -13,8 +13,6 @@ def test_construction():
         PriceRange(price1, Price(Amount(20, 'PLN'), Amount(20, 'PLN')))
     with pytest.raises(ValueError):
         PriceRange(price2, price1)
-    with pytest.raises(TypeError):
-        PriceRange(Amount(10, 'EUR'), Amount(20, 'EUR'))
 
 
 def test_addition():

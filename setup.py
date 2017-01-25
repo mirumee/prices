@@ -21,7 +21,7 @@ setup(
     license='BSD',
     version='0.5.9',
     url='https://github.com/mirumee/prices',
-    modules=['prices'],
-    requires=['babel', 'typing'],
+    packages=['prices'],
+    requires=['babel'],
     classifiers=CLASSIFIERS,
     platforms=['any'])
