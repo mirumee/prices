@@ -15,6 +15,12 @@ class Price(object):
         self.net = net
         self.gross = gross
 
+    @classmethod
+    def from_net(cls, net):
+        """Alternative constructor for when only net amount is known.
+        """
+        return cls(net, net)
+
     def __repr__(self):
         return 'Price(net=%r, gross=%r)' % (self.net, self.gross)
 

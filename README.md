@@ -42,8 +42,8 @@ Price ranges:
 
 ```python
 from prices import Amount, Price, PriceRange
-price1 = Price(net=Amount(1, 'USD'), gross=Amount(1, 'USD'))
-price2 = Price(net=Amount(10, 'USD'), gross=Amount(10, 'USD'))
+price1 = Price.from_net(Amount(1, 'USD'))
+price2 = Price.from_net(Amount(10, 'USD'))
 pr = PriceRange(price1, price2)
 pr.min_price
 # Price(net=Amount('1', 'USD'), gross=Amount('1', 'USD'))
@@ -79,8 +79,8 @@ Amount(10, 'USD') < Amount(15, 'GBP')
 
 ```python
 from prices import Amount, Price
-price1 = Price(Amount(5, 'BTC'), Amount(5, 'BTC'))
-price2 = Price(Amount(7, 'INR'), Amount(7, 'INR'))
+price1 = Price.from_net(Amount(5, 'BTC'))
+price2 = Price.from_net(Amount(7, 'INR'))
 price1 + price2
 # ValueError: Cannot add amount in 'BTC' to 'INR'
 ```
