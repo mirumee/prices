@@ -9,7 +9,6 @@ Amounts:
 
 ```python
 from prices import Amount
-
 a = Amount(10, 'USD')
 a += Amount(20, 'USD')
 a.value
@@ -27,7 +26,6 @@ Prices:
 
 ```python
 from prices import Amount, Price
-
 p = Price(net=Amount(20, 'EUR'), gross=Amount(30, 'EUR'))
 p.net
 # Amount('20', 'EUR')
@@ -44,7 +42,6 @@ Price ranges:
 
 ```python
 from prices import Amount, Price, PriceRange
-
 price1 = Price(net=Amount(1, 'USD'), gross=Amount(1, 'USD'))
 price2 = Price(net=Amount(10, 'USD'), gross=Amount(10, 'USD'))
 pr = PriceRange(price1, price2)
