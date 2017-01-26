@@ -4,7 +4,7 @@ from prices import Amount, Price, sum
 
 
 def test_construction():
-    price = Price.from_net(Amount(1, 'EUR'))
+    price = Price(Amount(1, 'EUR'), Amount(1, 'EUR'))
     assert price.net == price.gross == Amount(1, 'EUR')
     with pytest.raises(TypeError):
         Price(1, 1)
@@ -25,7 +25,7 @@ def test_subtraction():
     price2 = Price(Amount(30, 'USD'), Amount(45, 'USD'))
     assert price2 - price1 == Price(Amount(20, 'USD'), Amount(30, 'USD'))
     with pytest.raises(ValueError):
-        price1 - Price.from_net(Amount(10, 'GBP'))
+        price1 - Price(Amount(10, 'GBP'), Amount(10, 'GBP'))
     with pytest.raises(TypeError):
         price1 - 1
 

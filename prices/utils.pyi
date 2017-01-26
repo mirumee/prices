@@ -1,6 +1,6 @@
-from typing import Sequence, TypeVar
+from typing import Iterable, TypeVar
 
 T = TypeVar('T')
 
 
-def sum(values: Sequence[T]) -> T: ...
+def sum(values: Iterable[T]) -> T: ...
