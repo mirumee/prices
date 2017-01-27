@@ -22,6 +22,6 @@ setup(
     version='0.5.9',
     url='https://github.com/mirumee/prices',
     packages=['prices'],
-    requires=['babel'],
+    install_requires=['babel'],
     classifiers=CLASSIFIERS,
     platforms=['any'])
