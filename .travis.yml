@@ -7,8 +7,8 @@ python:
   - 3.5
 install:
   - python setup.py install
-  - pip install coverage
+  - pip install pytest pytest-cov
   - pip install codecov
-script: coverage run setup.py test
+script: pytest --cov
 after_success:
   - codecov
