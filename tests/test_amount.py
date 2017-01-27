@@ -15,6 +15,13 @@ def test_addition():
         Amount(10, 'USD') + 1
 
 
+def test_truthiness():
+    amount = Amount(0, 'USD')
+    assert bool(amount) is False
+    amount = Amount(1, 'USD')
+    assert bool(amount) is True
+
+
 def test_subtraction():
     assert Amount(40, 'USD') - Amount(30, 'USD') == Amount(10, 'USD')
     with pytest.raises(ValueError):

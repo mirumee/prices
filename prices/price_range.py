@@ -85,7 +85,10 @@ class PriceRange(object):
         return self.min_price.currency
 
     def quantize(self, exp=None, rounding=None):
-        """Quantizes the prices to given precision.
+        """Returns a quantized copy of the price range.
+
+        All arguments are passed to `Price.quantize` which in turn calls
+        `Amount.quantize`.
         """
         return PriceRange(
             self.min_price.quantize(exp, rounding=rounding),

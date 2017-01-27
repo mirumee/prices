@@ -1,5 +1,7 @@
 from __future__ import division, unicode_literals
 
+import warnings
+
 from .amount import Amount
 
 
@@ -88,6 +90,13 @@ class Price(object):
             return Price(net=price_net, gross=price_gross)
         return NotImplemented
 
+    def __nonzero__(self):  # pragma: no cover
+        warnings.warn(
+            RuntimeWarning(
+                '`bool(price)` will always evaluate to True, consider replacing the test with explicit `if price is None` or `if price.gross`.'),
+            stacklevel=2)
+        return True
+
     @property
     def currency(self):
         """Returns the currency of the price.
@@ -101,7 +110,9 @@ class Price(object):
         return self.gross - self.net
 
     def quantize(self, exp=None, rounding=None):
-        """Quantizes the price to given precision.
+        """Returns a quantized copy of the price.
+
+        All arguments are passed to `Amount.quantize`.
         """
         return Price(
             net=self.net.quantize(exp, rounding=rounding),

@@ -111,7 +111,18 @@ class Amount(object):
             return Amount(value=value, currency=self.currency)
         return NotImplemented
 
+    def __nonzero__(self):
+        return bool(self.value)
+
     def quantize(self, exp=None, rounding=None):
+        """Returns a quantized copy of the amount.
+
+        If `exp` is given the resulting exponent will match that of `exp`.
+
+        Otherwise the resulting exponent will be set to the correct exponent
+        of the currency if it's known and to default (two decimal places)
+        otherwise.
+        """
         if rounding is None:
             rounding = ROUND_HALF_UP
         if exp is None:
