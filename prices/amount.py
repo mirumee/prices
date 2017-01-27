@@ -111,8 +111,11 @@ class Amount(object):
             return Amount(value=value, currency=self.currency)
         return NotImplemented
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self.value)
+
+    def __nonzero__(self):
+        return self.__bool__()
 
     def quantize(self, exp=None, rounding=None):
         """Returns a quantized copy of the amount.

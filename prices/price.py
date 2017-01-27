@@ -90,12 +90,15 @@ class Price(object):
             return Price(net=price_net, gross=price_gross)
         return NotImplemented
 
-    def __nonzero__(self):  # pragma: no cover
+    def __bool__(self):  # pragma: no cover
         warnings.warn(
             RuntimeWarning(
                 '`bool(price)` will always evaluate to True, consider replacing the test with explicit `if price is None` or `if price.gross`.'),
             stacklevel=2)
         return True
+
+    def __nonzero__(self):
+        return self.__bool__()
 
     @property
     def currency(self):
