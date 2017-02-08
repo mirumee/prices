@@ -103,6 +103,11 @@ class PriceTest(unittest.TestCase):
         self.assertEqual(repr(p),
                          "Price(net='10', gross='20', currency='GBP')")
 
+    def test_sum(self):
+        total_sum = sum([self.ten_btc, self.twenty_btc])
+        total = self.ten_btc + self.twenty_btc
+        self.assertEqual(total, total_sum)
+
 
 class PriceRangeTest(unittest.TestCase):
 

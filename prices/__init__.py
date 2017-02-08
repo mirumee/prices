@@ -127,6 +127,9 @@ class Price(namedtuple('Price', 'net gross currency history')):
                          currency=self.currency, history=history)
         return NotImplemented
 
+    def __radd__(self, other):
+        return self
+
     def __sub__(self, other):
         if isinstance(other, Price):
             if other.currency != self.currency:
