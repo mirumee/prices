@@ -56,11 +56,9 @@ class Price(namedtuple('Price', 'net gross currency history')):
         return NotImplemented
 
     def __le__(self, other):
-        if self.__lt__(other):
-            return True
         if self == other:
             return True
-        return False
+        return self < other
 
     def __gt__(self, other):
         if isinstance(other, Price):
@@ -71,11 +69,9 @@ class Price(namedtuple('Price', 'net gross currency history')):
         return NotImplemented
 
     def __ge__(self, other):
-        if self.__gt__(other):
-            return True
         if self == other:
             return True
-        return False
+        return self > other
 
     def __eq__(self, other):
         if isinstance(other, Price):
