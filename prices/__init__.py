@@ -108,6 +108,10 @@ class Price(namedtuple('Price', 'net gross currency history')):
         return Price(net=price_net, gross=price_gross, currency=self.currency,
                      history=history)
 
+    def __neg__(self):
+        return Price(net=-self.net, gross=self.gross, currency=self.currency,
+                     history=self.history)
+
     def __div__(self, other):
         return self.__truediv__(other)
 
