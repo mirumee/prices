@@ -1,12 +1,8 @@
 Prices: Python price handling for humans
 ========================================
-
 [![Build Status](https://secure.travis-ci.org/mirumee/prices.png)](https://travis-ci.org/mirumee/prices) [![codecov.io](http://codecov.io/github/mirumee/prices/coverage.svg?branch=master)](http://codecov.io/github/mirumee/prices?branch=master)
-
 ------
-
 Amounts:
-
 ```python
 from prices import Amount
 a = Amount(10, 'USD')
@@ -21,9 +17,7 @@ a.quantize()
 a.value
 # Decimal('5')
 ```
-
 Prices:
-
 ```python
 from prices import Amount, Price
 p = Price(net=Amount(20, 'EUR'), gross=Amount(30, 'EUR'))
@@ -37,9 +31,7 @@ p = p.quantize()
 p.net
 # Amount('20.00', 'EUR')
 ```
-
 Price ranges:
-
 ```python
 from prices import Amount, Price, PriceRange
 price1 = Price(Amount(1, 'USD'), Amount(1, 'USD'))
@@ -56,9 +48,7 @@ pr = pr.quantize()
 pr.min_price.net
 # Amount('1.00', 'USD')
 ```
-
 Taxes:
-
 ```python
 from prices import Price, PriceRange, LinearTax
 p = Price(Amount('1.99', 'GBP'), Amount('1.99', 'GBP'))
@@ -68,19 +58,15 @@ p = p.quantize()
 p.gross
 # Amount('63.95', 'GBP')
 ```
-
 While protecting you from all sorts of mistakes:
-
 ```python
 from prices import Amount
 Amount(10, 'USD') < Amount(15, 'GBP')
 # ValueError: Cannot compare amounts in 'USD' and 'GBP'
 ```
-
 ```python
 from prices import Amount, Price
 price1 = Price(Amount(5, 'BTC'), Amount(5, 'BTC'))
 price2 = Price(Amount(7, 'INR'), Amount(7, 'INR'))
 price1 + price2
 # ValueError: Cannot add amount in 'BTC' to 'INR'
-```
