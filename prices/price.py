@@ -14,6 +14,10 @@ class Price(object):
         if not isinstance(net, Amount) or not isinstance(gross, Amount):
             raise TypeError('Price requires two amounts, got %r, %r' % (
                 net, gross))
+        if net.currency != gross.currency:
+            raise ValueError(
+                'Amounts given in different currencies: %r and %r' % (
+                    net.currency, gross.currency))
         self.net = net
         self.gross = gross
 
