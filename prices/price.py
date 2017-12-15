@@ -16,7 +16,7 @@ class Price(object):
                 net, gross))
         if net.currency != gross.currency:
             raise ValueError(
-                'Net and gross requires same currency, got %r, %r' % (
+                'Amounts given in different currencies: %r and %r' % (
                     net.currency, gross.currency))
         self.net = net
         self.gross = gross
