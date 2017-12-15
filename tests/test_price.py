@@ -10,6 +10,11 @@ def test_construction():
         Price(1, 1)
 
 
+def test_construction_different_currencies():
+    with pytest.raises(ValueError):
+        Price(net=Amount(1, 'USD'), gross=Amount(2, 'EUR'))
+
+
 def test_addition():
     price1 = Price(Amount(10, 'USD'), Amount(15, 'USD'))
     price2 = Price(Amount(20, 'USD'), Amount(30, 'USD'))
