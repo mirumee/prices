@@ -1,74 +1,85 @@
 from decimal import Decimal
+from typing import Optional, Union, overload
 
-from .amount import Amount
-from .price import Price
-from .price_range import PriceRange
+from .money import Money
+from .taxed_money import TaxedMoney
+from .taxed_money_range import TaxedMoneyRange
+
+Numeric = Union[int, Decimal]
 
 
-class Discount(object):
-    """Base discount class.
-    """
-    name = None
+class Discount:
+    """Base discount class."""
+
+    name: Optional[str] = None
+
+    @overload
+    def apply(self, other: TaxedMoney) -> TaxedMoney:
+        ...  # pragma: no cover
+
+    @overload
+    def apply(self, other: TaxedMoneyRange) -> TaxedMoneyRange:
+        ...  # pragma: no cover
 
     def apply(self, other):
-        """Apply the discount to a price or price range and return the
-        discounted price.
+        """Apply the discount to a price or price range.
+
+        Return a new discounted instance.
         """
-        if isinstance(other, Price):
-            return self.calculate_price(other)
-        elif isinstance(other, PriceRange):
-            return PriceRange(
-                self.apply(other.min_price), self.apply(other.max_price))
+        if isinstance(other, TaxedMoney):
+            return self.calculate(other)
+        elif isinstance(other, TaxedMoneyRange):
+            return TaxedMoneyRange(
+                self.apply(other.start), self.apply(other.stop))
         else:
             raise TypeError('Cannot apply discount to %r' % (other,))
 
-    def calculate_price(self, price):
-        """Calculate the price after discount.
-        """
+    def calculate(self, base: TaxedMoney) -> TaxedMoney:
+        """Calculate the price after discount."""
         raise NotImplementedError()
 
 
 class FixedDiscount(Discount):
-    """Reduces price by a fixed amount.
-    """
-    def __init__(self, amount, name=None):
+    """Reduces price by a fixed amount."""
+
+    def __init__(self, amount: Money, name: str = None) -> None:
         self.amount = amount
         self.name = name or self.name
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return 'FixedDiscount(%r, name=%r)' % (self.amount, self.name)
 
-    def calculate_price(self, price):
-        if price.currency != self.amount.currency:
-            raise ValueError('Cannot apply a discount in %r to a price in %r' %
-                             (self.amount.currency, price.currency))
-        price_net = max(
-            price.net - self.amount, Amount(0, self.amount.currency))
-        price_gross = max(
-            price.gross - self.amount, Amount(0, self.amount.currency))
-        return Price(net=price_net, gross=price_gross)
+    def calculate(self, base: TaxedMoney) -> TaxedMoney:
+        if base.currency != self.amount.currency:
+            raise ValueError(
+                'Cannot apply a discount in %r to a base in %r' % (
+                    self.amount.currency, base.currency))
+        net = max(
+            base.net - self.amount, Money(0, self.amount.currency))
+        gross = max(
+            base.gross - self.amount, Money(0, self.amount.currency))
+        return TaxedMoney(net=net, gross=gross)
 
 
 class FractionalDiscount(Discount):
-    """Reduces price by a given fraction.
-    """
-    def __init__(self, factor, name=None):
-        self.name = name or self.name
-        self.factor = Decimal(factor)
+    """Reduces price by a given fraction."""
 
-    def __repr__(self):
+    def __init__(self, factor: Decimal, name: str = None) -> None:
+        self.factor = Decimal(factor)
+        self.name = name or self.name
+
+    def __repr__(self) -> str:
         return 'FractionalDiscount(%r, name=%r)' % (self.factor, self.name)
 
-    def calculate_price(self, price):
-        net_discount = price.net * self.factor
-        gross_discount = price.gross * self.factor
-        return Price(
-            net=(price.net - net_discount).quantize(),
-            gross=(price.gross - gross_discount).quantize())
+    def calculate(self, base: TaxedMoney) -> TaxedMoney:
+        net_discount = base.net * self.factor
+        gross_discount = base.gross * self.factor
+        return TaxedMoney(
+            net=(base.net - net_discount).quantize(),
+            gross=(base.gross - gross_discount).quantize())
 
 
-def percentage_discount(value, name=None):
-    """Returns a fractional discount given a percentage instead of a fraction.
-    """
+def percentage_discount(value: Numeric, name: str = None) -> FractionalDiscount:
+    """Return a fractional discount given a percentage."""
     factor = Decimal(value) / 100
     return FractionalDiscount(factor, name)

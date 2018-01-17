@@ -1,16 +1,16 @@
-"""prices
+"""prices.
 
-Provides a Pythonic interface to deal with money types such as amounts,
+Provides a Pythonic interface to deal with money types such as money amounts,
 prices, discounts and taxes.
 """
-from .amount import Amount
 from .discount import (
     Discount, FixedDiscount, FractionalDiscount, percentage_discount)
-from .price import Price
-from .price_range import PriceRange
+from .money import Money
 from .tax import LinearTax, Tax
+from .taxed_money import TaxedMoney
+from .taxed_money_range import TaxedMoneyRange
 from .utils import sum
 
 __all__ = [
-    'Amount', 'FixedDiscount', 'FractionalDiscount', 'LinearTax', 'Price',
-    'PriceRange', 'Tax', 'percentage_discount', 'sum']
+    'FixedDiscount', 'FractionalDiscount', 'LinearTax', 'Money', 'Tax',
+    'TaxedMoney', 'TaxedMoneyRange', 'percentage_discount', 'sum']

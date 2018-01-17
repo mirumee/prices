@@ -2,14 +2,14 @@ import decimal
 
 import pytest
 
-from prices import Amount, LinearTax, Price, PriceRange
+from prices import Money, LinearTax, TaxedMoney, TaxedMoneyRange
 
 
 def test_application():
     tax = LinearTax(1, name='2x Tax')
-    result = tax.apply(Price(Amount(10, 'BTC'), Amount(10, 'BTC')))
-    assert result.net == Amount(10, 'BTC')
-    assert result.gross == Amount(20, 'BTC')
+    result = tax.apply(TaxedMoney(Money(10, 'BTC'), Money(10, 'BTC')))
+    assert result.net == Money(10, 'BTC')
+    assert result.gross == Money(20, 'BTC')
     with pytest.raises(TypeError):
         tax.apply(1)
 
@@ -17,12 +17,12 @@ def test_application():
 def test_pricerange():
     tax_name = '2x Tax'
     tax = LinearTax(1, name=tax_name)
-    price_range = PriceRange(
-        Price(Amount(10, 'BTC'), Amount(10, 'BTC')),
-        Price(Amount(20, 'BTC'), Amount(20, 'BTC')))
+    price_range = TaxedMoneyRange(
+        TaxedMoney(Money(10, 'BTC'), Money(10, 'BTC')),
+        TaxedMoney(Money(20, 'BTC'), Money(20, 'BTC')))
     result = tax.apply(price_range)
-    assert result.min_price == Price(Amount(10, 'BTC'), Amount(20, 'BTC'))
-    assert result.max_price == Price(Amount(20, 'BTC'), Amount(40, 'BTC'))
+    assert result.start == TaxedMoney(Money(10, 'BTC'), Money(20, 'BTC'))
+    assert result.stop == TaxedMoney(Money(20, 'BTC'), Money(40, 'BTC'))
 
 
 def test_comparison():
@@ -32,6 +32,10 @@ def test_comparison():
     assert tax1 != 1
     assert tax1 < tax2
     assert tax2 > tax1
+    assert tax1 <= tax1
+    assert tax1 <= tax2
+    assert tax2 >= tax1
+    assert tax2 >= tax2
 
 
 def test_repr():

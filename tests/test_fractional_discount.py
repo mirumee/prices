@@ -1,16 +1,16 @@
-from prices import Amount, FractionalDiscount, Price, PriceRange
+from prices import FractionalDiscount, Money, TaxedMoney, TaxedMoneyRange
 
 
 def test_discount():
-    price = Price(Amount(100, 'BTC'), Amount(100, 'BTC'))
+    price = TaxedMoney(Money(100, 'BTC'), Money(100, 'BTC'))
     discount = FractionalDiscount(factor='0.25')
     result = discount.apply(price)
-    assert result.net == Amount(75, 'BTC')
-    assert result.gross == Amount(75, 'BTC')
-    price_range = PriceRange(price, price)
+    assert result.net == Money(75, 'BTC')
+    assert result.gross == Money(75, 'BTC')
+    price_range = TaxedMoneyRange(price, price)
     result = discount.apply(price_range)
-    assert result.min_price == Price(Amount(75, 'BTC'), Amount(75, 'BTC'))
-    assert result.max_price == Price(Amount(75, 'BTC'), Amount(75, 'BTC'))
+    assert result.start == TaxedMoney(Money(75, 'BTC'), Money(75, 'BTC'))
+    assert result.stop == TaxedMoney(Money(75, 'BTC'), Money(75, 'BTC'))
 
 
 def test_repr():

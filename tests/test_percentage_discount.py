@@ -1,21 +1,21 @@
-from prices import Amount, Price, PriceRange, percentage_discount
+from prices import Money, TaxedMoney, TaxedMoneyRange, percentage_discount
 
 
 def test_discount():
-    price = Price(Amount(100, 'BTC'), Amount(100, 'BTC'))
+    price = TaxedMoney(Money(100, 'BTC'), Money(100, 'BTC'))
     discount = percentage_discount(value=10, name='Ten percent off')
     result = discount.apply(price)
-    assert result.net == Amount(90, 'BTC')
-    assert result.gross == Amount(90, 'BTC')
-    price_range = PriceRange(price, price)
+    assert result.net == Money(90, 'BTC')
+    assert result.gross == Money(90, 'BTC')
+    price_range = TaxedMoneyRange(price, price)
     result = discount.apply(price_range)
-    assert result.min_price == Price(Amount(90, 'BTC'), Amount(90, 'BTC'))
-    assert result.max_price == Price(Amount(90, 'BTC'), Amount(90, 'BTC'))
+    assert result.start == TaxedMoney(Money(90, 'BTC'), Money(90, 'BTC'))
+    assert result.stop == TaxedMoney(Money(90, 'BTC'), Money(90, 'BTC'))
 
 
 def test_precision():
-    price = Price(Amount('1.01', 'BTC'), Amount('1.01', 'BTC'))
+    price = TaxedMoney(Money('1.01', 'BTC'), Money('1.01', 'BTC'))
     discount = percentage_discount(value=50, name='Half off')
     result = discount.apply(price)
-    assert result.net == Amount('0.51', 'BTC')
-    assert result.net == Amount('0.51', 'BTC')
+    assert result.net == Money('0.51', 'BTC')
+    assert result.net == Money('0.51', 'BTC')
