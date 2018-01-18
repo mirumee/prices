@@ -11,8 +11,6 @@ Numeric = Union[int, Decimal]
 class Tax:
     """A generic tax class, provided so all taxers have a common base."""
 
-    name: Optional[str] = None
-
     @overload
     def apply(self, other: TaxedMoney) -> TaxedMoney:
         ...  # pragma: no cover
@@ -42,7 +40,7 @@ class LinearTax(Tax):
 
     def __init__(self, multiplier: Numeric, name=None) -> None:
         self.multiplier = Decimal(multiplier)
-        self.name = name or self.name
+        self.name = name
 
     def __repr__(self) -> str:
         return 'LinearTax(%r, name=%r)' % (str(self.multiplier), self.name)

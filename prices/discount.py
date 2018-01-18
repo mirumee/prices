@@ -11,8 +11,6 @@ Numeric = Union[int, Decimal]
 class Discount:
     """Base discount class."""
 
-    name: Optional[str] = None
-
     @overload
     def apply(self, other: TaxedMoney) -> TaxedMoney:
         ...  # pragma: no cover
@@ -44,7 +42,7 @@ class FixedDiscount(Discount):
 
     def __init__(self, amount: Money, name: str = None) -> None:
         self.amount = amount
-        self.name = name or self.name
+        self.name = name
 
     def __repr__(self) -> str:
         return 'FixedDiscount(%r, name=%r)' % (self.amount, self.name)
@@ -66,7 +64,7 @@ class FractionalDiscount(Discount):
 
     def __init__(self, factor: Decimal, name: str = None) -> None:
         self.factor = Decimal(factor)
-        self.name = name or self.name
+        self.name = name
 
     def __repr__(self) -> str:
         return 'FractionalDiscount(%r, name=%r)' % (self.factor, self.name)
