@@ -14,9 +14,6 @@ class TaxedMoney:
 
     __slots__ = ('net', 'gross')
 
-    net: Money
-    gross: Money
-
     def __init__(self, net: Money, gross: Money) -> None:
         if not isinstance(net, Money) or not isinstance(gross, Money):
             raise TypeError('Price requires two amounts, got %r, %r' % (

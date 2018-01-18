@@ -12,9 +12,6 @@ Numeric = Union[int, Decimal]
 class Money:
     """An amount of a particular currency."""
 
-    amount: Decimal
-    currency: str
-
     __slots__ = ('amount', 'currency')
 
     def __init__(self, amount: Numeric, currency: str) -> None:
