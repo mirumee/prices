@@ -6,7 +6,6 @@ CLASSIFIERS = [
     'License :: OSI Approved :: BSD License',
     'Operating System :: OS Independent',
     'Programming Language :: Python',
-    'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3.4',
     'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
@@ -21,6 +20,6 @@ setup(
     version='1.0.0-beta2',
     url='https://github.com/mirumee/prices',
     packages=['prices'],
-    install_requires=['babel>=2.5.0'],
+    install_requires=['babel>=2.5.0', 'typing>=3.6.0'],
     classifiers=CLASSIFIERS,
     platforms=['any'])
