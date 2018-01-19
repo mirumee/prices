@@ -5,8 +5,10 @@ python:
   - 3.6
 install:
   - python setup.py install
-  - pip install pytest pytest-cov
+  - pip install mypy pytest pytest-cov
   - pip install codecov
-script: pytest --cov
+script:
+  - pytest --cov
+  - mypy prices --ignore-missing-imports
 after_success:
   - codecov
