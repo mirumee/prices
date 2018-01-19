@@ -19,6 +19,9 @@ def test_addition():
     price1 = TaxedMoney(Money(10, 'USD'), Money(15, 'USD'))
     price2 = TaxedMoney(Money(20, 'USD'), Money(30, 'USD'))
     assert price2 + price1 == TaxedMoney(Money(30, 'USD'), Money(45, 'USD'))
+    result = price1 + Money(5, 'USD')
+    assert result.net == Money(15, 'USD')
+    assert result.gross == Money(20, 'USD')
     with pytest.raises(ValueError):
         price1 + TaxedMoney(Money(10, 'GBP'), Money(10, 'GBP'))
     with pytest.raises(TypeError):
@@ -29,6 +32,9 @@ def test_subtraction():
     price1 = TaxedMoney(Money(10, 'USD'), Money(15, 'USD'))
     price2 = TaxedMoney(Money(30, 'USD'), Money(45, 'USD'))
     assert price2 - price1 == TaxedMoney(Money(20, 'USD'), Money(30, 'USD'))
+    result = price1 - Money(5, 'USD')
+    assert result.net == Money(5, 'USD')
+    assert result.gross == Money(10, 'USD')
     with pytest.raises(ValueError):
         price1 - TaxedMoney(Money(10, 'GBP'), Money(10, 'GBP'))
     with pytest.raises(TypeError):

@@ -51,35 +51,43 @@ class TaxedMoney:
 
     def __mul__(self, other: Numeric) -> 'TaxedMoney':
         try:
-            price_net = self.net * other
-            price_gross = self.gross * other
+            net = self.net * other
+            gross = self.gross * other
         except TypeError:
             return NotImplemented
-        return TaxedMoney(net=price_net, gross=price_gross)
+        return TaxedMoney(net=net, gross=gross)
 
     def __rmul__(self, other: Numeric) -> 'TaxedMoney':
         return self * other
 
     def __truediv__(self, other: Numeric) -> 'TaxedMoney':
         try:
-            price_net = self.net / other
-            price_gross = self.gross / other
+            net = self.net / other
+            gross = self.gross / other
         except TypeError:
             return NotImplemented
-        return TaxedMoney(net=price_net, gross=price_gross)
+        return TaxedMoney(net=net, gross=gross)
 
-    def __add__(self, other: 'TaxedMoney') -> 'TaxedMoney':
+    def __add__(self, other: Union[Money, 'TaxedMoney']) -> 'TaxedMoney':
         if isinstance(other, TaxedMoney):
-            price_net = self.net + other.net
-            price_gross = self.gross + other.gross
-            return TaxedMoney(net=price_net, gross=price_gross)
+            net = self.net + other.net
+            gross = self.gross + other.gross
+            return TaxedMoney(net=net, gross=gross)
+        if isinstance(other, Money):
+            net = self.net + other
+            gross = self.gross + other
+            return TaxedMoney(net=net, gross=gross)
         return NotImplemented
 
-    def __sub__(self, other: 'TaxedMoney') -> 'TaxedMoney':
+    def __sub__(self, other: Union[Money, 'TaxedMoney']) -> 'TaxedMoney':
         if isinstance(other, TaxedMoney):
-            price_net = self.net - other.net
-            price_gross = self.gross - other.gross
-            return TaxedMoney(net=price_net, gross=price_gross)
+            net = self.net - other.net
+            gross = self.gross - other.gross
+            return TaxedMoney(net=net, gross=gross)
+        if isinstance(other, Money):
+            net = self.net - other
+            gross = self.gross - other
+            return TaxedMoney(net=net, gross=gross)
         return NotImplemented
 
     def __bool__(self) -> bool:  # pragma: no cover

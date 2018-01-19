@@ -2,7 +2,9 @@ from __future__ import division, unicode_literals
 
 from typing import Union
 
-from .taxed_money import TaxedMoney
+from .taxed_money import Money, TaxedMoney
+
+Addable = Union[Money, TaxedMoney, 'TaxedMoneyRange']
 
 
 class TaxedMoneyRange:
@@ -25,8 +27,8 @@ class TaxedMoneyRange:
     def __repr__(self) -> str:
         return 'TaxedMoneyRange(%r, %r)' % (self.start, self.stop)
 
-    def __add__(self, other: Union[TaxedMoney, 'TaxedMoneyRange']) -> 'TaxedMoneyRange':
-        if isinstance(other, TaxedMoney):
+    def __add__(self, other: Addable) -> 'TaxedMoneyRange':
+        if isinstance(other, (Money, TaxedMoney)):
             if other.currency != self.currency:
                 raise ValueError(
                     "Cannot add pricerange in %r to price in %r" % (
@@ -44,8 +46,8 @@ class TaxedMoneyRange:
             return TaxedMoneyRange(start, stop)
         return NotImplemented
 
-    def __sub__(self, other: Union[TaxedMoney, 'TaxedMoneyRange']) -> 'TaxedMoneyRange':
-        if isinstance(other, TaxedMoney):
+    def __sub__(self, other: Addable) -> 'TaxedMoneyRange':
+        if isinstance(other, (Money, TaxedMoney)):
             if other.currency != self.start.currency:
                 raise ValueError(
                     'Cannot subtract price in %r from pricerange in %r' % (

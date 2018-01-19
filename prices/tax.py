@@ -8,59 +8,43 @@ from .taxed_money_range import TaxedMoneyRange
 Numeric = Union[int, Decimal]
 
 
-class Tax:
-    """A generic tax class, provided so all taxers have a common base."""
+@overload
+def flat_tax(
+        base: Union[Money, TaxedMoney],
+        tax_rate: Decimal,
+        *,
+        keep_gross) -> TaxedMoney:
+    ...  # pragma: no cover
 
-    @overload
-    def apply(self, other: TaxedMoney) -> TaxedMoney:
-        ...  # pragma: no cover
 
-    @overload
-    def apply(self, other: TaxedMoneyRange) -> TaxedMoneyRange:
-        ...  # pragma: no cover
+@overload
+def flat_tax(
+        base: TaxedMoneyRange,
+        tax_rate: Decimal,
+        *,
+        keep_gross) -> TaxedMoneyRange:
+    ...  # pragma: no cover
 
-    def apply(self, other):
-        if isinstance(other, TaxedMoney):
-            return TaxedMoney(
-                net=other.net,
-                gross=other.gross + self.calculate(other))
-        elif isinstance(other, TaxedMoneyRange):
-            return TaxedMoneyRange(
-                self.apply(other.start), self.apply(other.stop))
+
+def flat_tax(base, tax_rate, *, keep_gross=False):
+    """Apply a flat tax by either increasing gross or decreasing net amount."""
+    fraction = Decimal(1) + tax_rate
+    if isinstance(base, TaxedMoneyRange):
+        return TaxedMoneyRange(
+            flat_tax(base.start, tax_rate, keep_gross=keep_gross),
+            flat_tax(base.stop, tax_rate, keep_gross=keep_gross))
+    if isinstance(base, TaxedMoney):
+        if keep_gross:
+            new_net = (base.net / fraction).quantize()
+            return TaxedMoney(net=new_net, gross=base.gross)
         else:
-            raise TypeError('Cannot apply tax to %r' % (other,))
-
-    def calculate(self, base: TaxedMoney) -> Money:
-        """Calculate the tax amount."""
-        raise NotImplementedError()
-
-
-class LinearTax(Tax):
-    """Adds a certain fraction on top of the price."""
-
-    def __init__(self, multiplier: Numeric, name=None) -> None:
-        self.multiplier = Decimal(multiplier)
-        self.name = name
-
-    def __repr__(self) -> str:
-        return 'LinearTax(%r, name=%r)' % (str(self.multiplier), self.name)
-
-    def __lt__(self, other: 'LinearTax') -> bool:
-        if isinstance(other, LinearTax):
-            return self.multiplier < other.multiplier
-        return NotImplemented
-
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, LinearTax):
-            return (
-                self.multiplier == other.multiplier and
-                self.name == other.name)
-        return False
-
-    def __le__(self, other: 'LinearTax') -> bool:
-        if self == other:
-            return True
-        return self < other
-
-    def calculate(self, base: TaxedMoney) -> Money:
-        return base.net * self.multiplier
+            new_gross = (base.gross * fraction).quantize()
+            return TaxedMoney(net=base.net, gross=new_gross)
+    if isinstance(base, Money):
+        if keep_gross:
+            net = (base / fraction).quantize()
+            return TaxedMoney(net=net, gross=base)
+        else:
+            gross = (base * fraction).quantize()
+            return TaxedMoney(net=base, gross=gross)
+    raise TypeError('Unknown base for flat_tax: %r' % (base,))
