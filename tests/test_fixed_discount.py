@@ -1,37 +1,38 @@
+from functools import partial
+
 import pytest
 
-from prices import Amount, FixedDiscount, Price, PriceRange
+from prices import (
+    Money, MoneyRange, TaxedMoney, TaxedMoneyRange, fixed_discount)
 
 
 def test_application():
-    price = Price(Amount(30, 'BTC'), Amount(30, 'BTC'))
-    discount = FixedDiscount(Amount(10, 'BTC'), name='Ten off')
-    result = discount.apply(price)
-    assert result.net == Amount(20, 'BTC')
-    assert result.gross == Amount(20, 'BTC')
-    price_range = PriceRange(price, price)
-    result = discount.apply(price_range)
-    assert result.min_price == Price(Amount(20, 'BTC'), Amount(20, 'BTC'))
-    assert result.max_price == Price(Amount(20, 'BTC'), Amount(20, 'BTC'))
+    price = TaxedMoney(Money(30, 'BTC'), Money(30, 'BTC'))
+    discount = partial(fixed_discount, discount=Money(10, 'BTC'))
+    result = discount(price)
+    assert result.net == Money(20, 'BTC')
+    assert result.gross == Money(20, 'BTC')
+    price_range = MoneyRange(price.net, price.net)
+    result = discount(price_range)
+    assert result.start == Money(20, 'BTC')
+    assert result.stop == Money(20, 'BTC')
+    price_range = TaxedMoneyRange(price, price)
+    result = discount(price_range)
+    assert result.start == TaxedMoney(Money(20, 'BTC'), Money(20, 'BTC'))
+    assert result.stop == TaxedMoney(Money(20, 'BTC'), Money(20, 'BTC'))
     with pytest.raises(TypeError):
-        discount.apply(1)
+        discount(1)
 
 
 def test_zero_clipping():
-    price = Price(Amount(10, 'USD'), Amount(10, 'USD'))
-    discount = FixedDiscount(Amount(30, 'USD'), name='Up to $30 OFF')
-    result = discount.apply(price)
-    assert result.net == Amount(0, 'USD')
-    assert result.gross == Amount(0, 'USD')
+    price = TaxedMoney(Money(10, 'USD'), Money(10, 'USD'))
+    result = fixed_discount(price, Money(30, 'USD'))
+    assert result.net == Money(0, 'USD')
+    assert result.gross == Money(0, 'USD')
 
 
 def test_currency_mismatch():
-    discount = FixedDiscount(Amount(10, 'USD'))
     with pytest.raises(ValueError):
-        discount.apply(Price(Amount(10, 'BTC'), Amount(10, 'BTC')))
-
-
-def test_repr():
-    discount = FixedDiscount(Amount(10, 'USD'), name='Ten off')
-    assert repr(discount) == (
-        "FixedDiscount(Amount('10', 'USD'), name='Ten off')")
+        fixed_discount(
+            TaxedMoney(Money(10, 'BTC'), Money(10, 'BTC')),
+            Money(10, 'USD'))
