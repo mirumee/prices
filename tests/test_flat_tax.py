@@ -2,7 +2,7 @@ from decimal import Decimal
 
 import pytest
 
-from prices import Money, TaxedMoney, TaxedMoneyRange, flat_tax
+from prices import Money, MoneyRange, TaxedMoney, TaxedMoneyRange, flat_tax
 
 
 def test_application():
@@ -28,6 +28,10 @@ def test_tax_from_gross():
 
 
 def test_range():
+    price_range = MoneyRange(Money(10, 'BTC'), Money(20, 'BTC'))
+    result = flat_tax(price_range, 1)
+    assert result.start == TaxedMoney(Money(10, 'BTC'), Money(20, 'BTC'))
+    assert result.stop == TaxedMoney(Money(20, 'BTC'), Money(40, 'BTC'))
     price_range = TaxedMoneyRange(
         TaxedMoney(Money(10, 'BTC'), Money(10, 'BTC')),
         TaxedMoney(Money(20, 'BTC'), Money(20, 'BTC')))

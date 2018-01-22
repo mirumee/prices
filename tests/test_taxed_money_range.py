@@ -1,6 +1,6 @@
 import pytest
 
-from prices import Money, TaxedMoney, TaxedMoneyRange
+from prices import Money, MoneyRange, TaxedMoney, TaxedMoneyRange
 
 
 def test_construction():
@@ -15,7 +15,45 @@ def test_construction():
         TaxedMoneyRange(price2, price1)
 
 
-def test_addition():
+def test_addition_with_money():
+    price1 = TaxedMoney(Money(10, 'EUR'), Money(15, 'EUR'))
+    price2 = TaxedMoney(Money(30, 'EUR'), Money(45, 'EUR'))
+    price_range = TaxedMoneyRange(price1, price2)
+    price3 = Money(40, 'EUR')
+    result = price_range + price3
+    assert result.start == price1 + price3
+    assert result.stop == price2 + price3
+    with pytest.raises(ValueError):
+        price_range + Money(1, 'BTC')
+
+
+def test_addition_with_money_range():
+    price1 = TaxedMoney(Money(10, 'EUR'), Money(15, 'EUR'))
+    price2 = TaxedMoney(Money(30, 'EUR'), Money(45, 'EUR'))
+    price_range1 = TaxedMoneyRange(price1, price2)
+    price3 = Money(40, 'EUR')
+    price4 = Money(80, 'EUR')
+    price_range2 = MoneyRange(price3, price4)
+    result = price_range1 + price_range2
+    assert result.start == price1 + price3
+    assert result.stop == price2 + price4
+    with pytest.raises(ValueError):
+        price_range1 + MoneyRange(Money(1, 'BTC'), Money(2, 'BTC'))
+
+
+def test_addition_with_taxed_money():
+    price1 = TaxedMoney(Money(10, 'EUR'), Money(15, 'EUR'))
+    price2 = TaxedMoney(Money(30, 'EUR'), Money(45, 'EUR'))
+    price_range = TaxedMoneyRange(price1, price2)
+    price3 = TaxedMoney(Money(40, 'EUR'), Money(60, 'EUR'))
+    result = price_range + price3
+    assert result.start == price1 + price3
+    assert result.stop == price2 + price3
+    with pytest.raises(ValueError):
+        price_range + TaxedMoney(Money(1, 'BTC'), Money(1, 'BTC'))
+
+
+def test_addition_with_taxed_money_range():
     price1 = TaxedMoney(Money(10, 'EUR'), Money(15, 'EUR'))
     price2 = TaxedMoney(Money(30, 'EUR'), Money(45, 'EUR'))
     price_range1 = TaxedMoneyRange(price1, price2)
@@ -25,20 +63,59 @@ def test_addition():
     result = price_range1 + price_range2
     assert result.start == price1 + price3
     assert result.stop == price2 + price4
-    result = price_range1 + price3
-    assert result.start == price1 + price3
-    assert result.stop == price2 + price3
     with pytest.raises(ValueError):
         price_range1 + TaxedMoneyRange(
             TaxedMoney(Money(1, 'BTC'), Money(1, 'BTC')),
             TaxedMoney(Money(2, 'BTC'), Money(2, 'BTC')))
-    with pytest.raises(ValueError):
-        price_range1 + TaxedMoney(Money(1, 'BTC'), Money(1, 'BTC'))
+
+
+def test_addition_with_other_types():
+    price1 = TaxedMoney(Money(10, 'EUR'), Money(15, 'EUR'))
+    price2 = TaxedMoney(Money(30, 'EUR'), Money(45, 'EUR'))
+    price_range = TaxedMoneyRange(price1, price2)
     with pytest.raises(TypeError):
-        price_range1 + 1
+        price_range + 1
 
 
-def test_subtraction():
+def test_subtraction_with_money():
+    price1 = TaxedMoney(Money(40, 'EUR'), Money(60, 'EUR'))
+    price2 = TaxedMoney(Money(80, 'EUR'), Money(120, 'EUR'))
+    price_range = TaxedMoneyRange(price1, price2)
+    price3 = Money(10, 'EUR')
+    result = price_range - price3
+    assert result.start == price1 - price3
+    assert result.stop == price2 - price3
+    with pytest.raises(ValueError):
+        price_range - Money(1, 'BTC')
+
+
+def test_subtraction_with_money_range():
+    price1 = Money(10, 'EUR')
+    price2 = Money(30, 'EUR')
+    price_range1 = MoneyRange(price1, price2)
+    price3 = TaxedMoney(Money(40, 'EUR'), Money(60, 'EUR'))
+    price4 = TaxedMoney(Money(80, 'EUR'), Money(120, 'EUR'))
+    price_range2 = TaxedMoneyRange(price3, price4)
+    result = price_range2 - price_range1
+    assert result.start == price3 - price1
+    assert result.stop == price4 - price2
+    with pytest.raises(ValueError):
+        price_range2 - MoneyRange(Money(1, 'BTC'), Money(2, 'BTC'))
+
+
+def test_subtraction_with_taxed_money():
+    price1 = TaxedMoney(Money(40, 'EUR'), Money(60, 'EUR'))
+    price2 = TaxedMoney(Money(80, 'EUR'), Money(120, 'EUR'))
+    price_range = TaxedMoneyRange(price1, price2)
+    price3 = TaxedMoney(Money(10, 'EUR'), Money(15, 'EUR'))
+    result = price_range - price3
+    assert result.start == price1 - price3
+    assert result.stop == price2 - price3
+    with pytest.raises(ValueError):
+        price_range - TaxedMoney(Money(1, 'BTC'), Money(1, 'BTC'))
+
+
+def test_subtraction_with_taxed_money_range():
     price1 = TaxedMoney(Money(10, 'EUR'), Money(15, 'EUR'))
     price2 = TaxedMoney(Money(30, 'EUR'), Money(45, 'EUR'))
     price_range1 = TaxedMoneyRange(price1, price2)
@@ -48,17 +125,18 @@ def test_subtraction():
     result = price_range2 - price_range1
     assert result.start == price3 - price1
     assert result.stop == price4 - price2
-    result = price_range2 - price1
-    assert result.start == price3 - price1
-    assert result.stop == price4 - price1
     with pytest.raises(ValueError):
         price_range2 - TaxedMoneyRange(
             TaxedMoney(Money(1, 'BTC'), Money(1, 'BTC')),
             TaxedMoney(Money(2, 'BTC'), Money(2, 'BTC')))
-    with pytest.raises(ValueError):
-        price_range2 - TaxedMoney(Money(1, 'BTC'), Money(1, 'BTC'))
+
+
+def test_subtraction_with_other_types():
+    price1 = TaxedMoney(Money(40, 'EUR'), Money(60, 'EUR'))
+    price2 = TaxedMoney(Money(80, 'EUR'), Money(120, 'EUR'))
+    price_range = TaxedMoneyRange(price1, price2)
     with pytest.raises(TypeError):
-        price_range2 - 1
+        price_range - 1
 
 
 def test_comparison():

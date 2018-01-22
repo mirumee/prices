@@ -2,16 +2,21 @@ from decimal import Decimal, ROUND_DOWN
 from typing import TypeVar, Union
 
 from .money import Money
+from .money_range import MoneyRange
 from .taxed_money import TaxedMoney
 from .taxed_money_range import TaxedMoneyRange
 
 Numeric = Union[int, Decimal]
 
-T = TypeVar('T', Money, TaxedMoney, TaxedMoneyRange)
+T = TypeVar('T', Money, MoneyRange, TaxedMoney, TaxedMoneyRange)
 
 
 def fixed_discount(base: T, discount: Money) -> T:
     """Apply a fixed discount to any price type."""
+    if isinstance(base, MoneyRange):
+        return MoneyRange(
+            fixed_discount(base.start, discount),
+            fixed_discount(base.stop, discount))
     if isinstance(base, TaxedMoneyRange):
         return TaxedMoneyRange(
             fixed_discount(base.start, discount),
@@ -27,6 +32,10 @@ def fixed_discount(base: T, discount: Money) -> T:
 
 def fractional_discount(base: T, fraction: Decimal, *, from_gross=True) -> T:
     """Apply a fractional discount based on either gross or net amount."""
+    if isinstance(base, MoneyRange):
+        return MoneyRange(
+            fractional_discount(base.start, fraction, from_gross=from_gross),
+            fractional_discount(base.stop, fraction, from_gross=from_gross))
     if isinstance(base, TaxedMoneyRange):
         return TaxedMoneyRange(
             fractional_discount(base.start, fraction, from_gross=from_gross),

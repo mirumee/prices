@@ -2,6 +2,7 @@ from decimal import Decimal
 from typing import Optional, Union, overload
 
 from .money import Money
+from .money_range import MoneyRange
 from .taxed_money import TaxedMoney
 from .taxed_money_range import TaxedMoneyRange
 
@@ -19,7 +20,7 @@ def flat_tax(
 
 @overload
 def flat_tax(
-        base: TaxedMoneyRange,
+        base: Union[MoneyRange, TaxedMoneyRange],
         tax_rate: Decimal,
         *,
         keep_gross) -> TaxedMoneyRange:
@@ -29,7 +30,7 @@ def flat_tax(
 def flat_tax(base, tax_rate, *, keep_gross=False):
     """Apply a flat tax by either increasing gross or decreasing net amount."""
     fraction = Decimal(1) + tax_rate
-    if isinstance(base, TaxedMoneyRange):
+    if isinstance(base, (MoneyRange, TaxedMoneyRange)):
         return TaxedMoneyRange(
             flat_tax(base.start, tax_rate, keep_gross=keep_gross),
             flat_tax(base.stop, tax_rate, keep_gross=keep_gross))

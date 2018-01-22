@@ -2,7 +2,8 @@ from functools import partial
 
 import pytest
 
-from prices import Money, TaxedMoney, TaxedMoneyRange, fixed_discount
+from prices import (
+    Money, MoneyRange, TaxedMoney, TaxedMoneyRange, fixed_discount)
 
 
 def test_application():
@@ -11,6 +12,10 @@ def test_application():
     result = discount(price)
     assert result.net == Money(20, 'BTC')
     assert result.gross == Money(20, 'BTC')
+    price_range = MoneyRange(price.net, price.net)
+    result = discount(price_range)
+    assert result.start == Money(20, 'BTC')
+    assert result.stop == Money(20, 'BTC')
     price_range = TaxedMoneyRange(price, price)
     result = discount(price_range)
     assert result.start == TaxedMoney(Money(20, 'BTC'), Money(20, 'BTC'))
