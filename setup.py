@@ -17,7 +17,7 @@ setup(
     author_email='hello@mirumee.com',
     description='Python price handling for humans',
     license='BSD',
-    version='1.0.0-beta3',
+    version='1.0.0',
     url='https://github.com/mirumee/prices',
     packages=['prices'],
     install_requires=['babel>=2.5.0', 'typing>=3.6.0'],
