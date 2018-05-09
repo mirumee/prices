@@ -61,12 +61,12 @@ Taxes:
 
 ```python
 from decimal import Decimal
-from prices import TaxedMoney, TaxedMoneyRange, flat_tax
+from prices import Money, TaxedMoney, TaxedMoneyRange, flat_tax
 p = TaxedMoney(Money('1.99', 'GBP'), Money('1.99', 'GBP'))
 p = flat_tax(p, Decimal('0.23'))
 p = p.quantize()
 p.gross
-# Money('63.95', 'GBP')
+# Money('2.45', 'GBP')
 ```
 
 While protecting you from all sorts of mistakes:
