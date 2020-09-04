@@ -6,8 +6,8 @@ python:
   - 3.8
 install:
   - python setup.py install
-  - pip install mypy pytest pytest-cov
-  - pip install codecov
+  - pip install -U mypy pytest pytest-cov
+  - pip install -U codecov
 script:
   - pytest --cov
   - mypy prices --ignore-missing-imports
