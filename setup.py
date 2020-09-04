@@ -20,6 +20,6 @@ setup(
     version='1.0.0',
     url='https://github.com/mirumee/prices',
     packages=['prices'],
-    install_requires=['babel>=2.5.0', 'typing>=3.6.0'],
+    install_requires=['babel>=2.5.0', 'typing>=3.6.0;python_version<"3.5"'],
     classifiers=CLASSIFIERS,
     platforms=['any'])
