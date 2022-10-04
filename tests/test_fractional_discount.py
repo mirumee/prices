@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from functools import partial
 
 import pytest
@@ -27,3 +27,18 @@ def test_discount_from_net():
     result = fractional_discount(price, Decimal('0.5'), from_gross=False)
     assert result.net == Money(50, 'PLN')
     assert result.gross == Money(150, 'PLN')
+
+
+def test_precision_when_default_rounding():
+    """Test precision when default rounding is used.
+
+    Default rounding is set to ROUND_DOWN.
+    """
+    price = TaxedMoney(Money('1.01', 'BTC'), Money('1.01', 'BTC'))
+    result = fractional_discount(price, Decimal('0.5'))
+    assert result.net == Money('0.51', 'BTC')
+
+def test_precision_when_half_up_rounding():
+    price = TaxedMoney(Money('1.01', 'BTC'), Money('1.01', 'BTC'))
+    result = fractional_discount(price, Decimal('0.5'), rounding=ROUND_HALF_UP)
+    assert result.net == Money('0.50', 'BTC')

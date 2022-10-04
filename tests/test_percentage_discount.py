@@ -1,3 +1,4 @@
+from decimal import ROUND_HALF_UP
 from functools import partial
 
 from prices import Money, TaxedMoney, TaxedMoneyRange, percentage_discount
@@ -15,8 +16,16 @@ def test_discount():
     assert result.stop == TaxedMoney(Money(90, 'BTC'), Money(90, 'BTC'))
 
 
-def test_precision():
+def test_precision_when_default_rounding():
+    """Test precision when default rounding is used.
+
+    Default rounding is set to ROUND_DOWN.
+    """
     price = TaxedMoney(Money('1.01', 'BTC'), Money('1.01', 'BTC'))
     result = percentage_discount(price, percentage=50)
     assert result.net == Money('0.51', 'BTC')
-    assert result.net == Money('0.51', 'BTC')
+
+def test_precision_when_half_up_rounding():
+    price = TaxedMoney(Money('1.01', 'BTC'), Money('1.01', 'BTC'))
+    result = percentage_discount(price, percentage=50, rounding=ROUND_HALF_UP)
+    assert result.net == Money('0.50', 'BTC')

@@ -30,7 +30,7 @@ def fixed_discount(base: T, discount: Money) -> T:
     raise TypeError('Unknown base for fixed_discount: %r' % (base,))
 
 
-def fractional_discount(base: T, fraction: Decimal, *, from_gross=True) -> T:
+def fractional_discount(base: T, fraction: Decimal, *, from_gross=True, rounding=ROUND_DOWN) -> T:
     """Apply a fractional discount based on either gross or net amount."""
     if isinstance(base, MoneyRange):
         return MoneyRange(
@@ -42,17 +42,17 @@ def fractional_discount(base: T, fraction: Decimal, *, from_gross=True) -> T:
             fractional_discount(base.stop, fraction, from_gross=from_gross))
     if isinstance(base, TaxedMoney):
         if from_gross:
-            discount = (base.gross * fraction).quantize(rounding=ROUND_DOWN)
+            discount = (base.gross * fraction).quantize(rounding=rounding)
         else:
-            discount = (base.net * fraction).quantize(rounding=ROUND_DOWN)
+            discount = (base.net * fraction).quantize(rounding=rounding)
         return fixed_discount(base, discount)
     if isinstance(base, Money):
-        discount = (base * fraction).quantize(rounding=ROUND_DOWN)
+        discount = (base * fraction).quantize(rounding=rounding)
         return fixed_discount(base, discount)
     raise TypeError('Unknown base for fractional_discount: %r' % (base,))
 
 
-def percentage_discount(base: T, percentage: Numeric, *, from_gross=True) -> T:
+def percentage_discount(base: T, percentage: Numeric, *, from_gross=True, rounding=ROUND_DOWN) -> T:
     """Apply a percentage discount based on either gross or net amount."""
     factor = Decimal(percentage) / 100
-    return fractional_discount(base, factor, from_gross=from_gross)
+    return fractional_discount(base, factor, from_gross=from_gross, rounding=rounding)
