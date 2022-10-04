@@ -24,10 +24,8 @@ def test_precision_when_default_rounding():
     price = TaxedMoney(Money('1.01', 'BTC'), Money('1.01', 'BTC'))
     result = percentage_discount(price, percentage=50)
     assert result.net == Money('0.51', 'BTC')
-    assert result.net == Money('0.51', 'BTC')
 
 def test_precision_when_half_up_rounding():
     price = TaxedMoney(Money('1.01', 'BTC'), Money('1.01', 'BTC'))
     result = percentage_discount(price, percentage=50, rounding=ROUND_HALF_UP)
-    assert result.net == Money('0.50', 'BTC')
     assert result.net == Money('0.50', 'BTC')
