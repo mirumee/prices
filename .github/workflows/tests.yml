@@ -25,7 +25,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python setup.py install
-        pip install mypy pytest pytest-cov
+        pip install mypy pytest pytest-cov pylint
     - name: Pytest
       run: |
         pytest --cov=prices --cov=tests
