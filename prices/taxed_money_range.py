@@ -1,8 +1,10 @@
+from typing import TypeAlias
+
 from prices.money import Money
 from prices.money_range import MoneyRange
 from prices.taxed_money import TaxedMoney
 
-Addable = "Money | MoneyRange | TaxedMoney | TaxedMoneyRange"
+Addable: TypeAlias = "Money | MoneyRange | TaxedMoney | TaxedMoneyRange"
 
 
 class TaxedMoneyRange:
@@ -95,7 +97,7 @@ class TaxedMoneyRange:
         )
 
     def replace(
-        self, start: TaxedMoney = None, stop: TaxedMoney = None
+        self, start: TaxedMoney | None = None, stop: TaxedMoney | None = None
     ) -> "TaxedMoneyRange":
         """Return a range with start or stop replaced with given values."""
         if start is None:

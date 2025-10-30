@@ -1,6 +1,8 @@
-from prices.taxed_money import Money
+from typing import TypeAlias
 
-Addable = "Money | MoneyRange"
+from prices.money import Money
+
+Addable: TypeAlias = "Money | MoneyRange"
 
 
 class MoneyRange:
@@ -90,7 +92,9 @@ class MoneyRange:
             self.stop.quantize(exp, rounding=rounding),
         )
 
-    def replace(self, start: Money = None, stop: Money = None) -> "MoneyRange":
+    def replace(
+        self, start: Money | None = None, stop: Money | None = None
+    ) -> "MoneyRange":
         """Return a range with start or stop replaced with given values."""
         if start is None:
             start = self.start
