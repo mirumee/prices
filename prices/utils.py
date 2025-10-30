@@ -1,8 +1,9 @@
 import functools
 import operator
-from typing import Iterable, TypeVar
+from collections.abc import Iterable
+from typing import TypeVar
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def sum(values: Iterable[T]) -> T:
