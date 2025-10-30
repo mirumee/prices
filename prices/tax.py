@@ -1,30 +1,24 @@
 from decimal import Decimal
-from typing import Optional, Union, overload
+from typing import overload
 
-from .money import Money
-from .money_range import MoneyRange
-from .taxed_money import TaxedMoney
-from .taxed_money_range import TaxedMoneyRange
+from prices.money import Money
+from prices.money_range import MoneyRange
+from prices.taxed_money import TaxedMoney
+from prices.taxed_money_range import TaxedMoneyRange
 
-Numeric = Union[int, Decimal]
-
-
-@overload
-def flat_tax(
-        base: Union[Money, TaxedMoney],
-        tax_rate: Decimal,
-        *,
-        keep_gross) -> TaxedMoney:
-    ...  # pragma: no cover
+Numeric = int | Decimal
 
 
 @overload
 def flat_tax(
-        base: Union[MoneyRange, TaxedMoneyRange],
-        tax_rate: Decimal,
-        *,
-        keep_gross) -> TaxedMoneyRange:
-    ...  # pragma: no cover
+    base: Money | TaxedMoney, tax_rate: Decimal, *, keep_gross
+) -> TaxedMoney: ...  # pragma: no cover
+
+
+@overload
+def flat_tax(
+    base: MoneyRange | TaxedMoneyRange, tax_rate: Decimal, *, keep_gross
+) -> TaxedMoneyRange: ...  # pragma: no cover
 
 
 def flat_tax(base, tax_rate, *, keep_gross=False):
@@ -33,7 +27,8 @@ def flat_tax(base, tax_rate, *, keep_gross=False):
     if isinstance(base, (MoneyRange, TaxedMoneyRange)):
         return TaxedMoneyRange(
             flat_tax(base.start, tax_rate, keep_gross=keep_gross),
-            flat_tax(base.stop, tax_rate, keep_gross=keep_gross))
+            flat_tax(base.stop, tax_rate, keep_gross=keep_gross),
+        )
     if isinstance(base, TaxedMoney):
         if keep_gross:
             new_net = (base.net / fraction).quantize()
@@ -48,4 +43,4 @@ def flat_tax(base, tax_rate, *, keep_gross=False):
         else:
             gross = (base * fraction).quantize()
             return TaxedMoney(net=base, gross=gross)
-    raise TypeError('Unknown base for flat_tax: %r' % (base,))
+    raise TypeError(f"Unknown base for flat_tax: {base!r}")
