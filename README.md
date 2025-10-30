@@ -1,5 +1,4 @@
-Prices: Python price handling for humans
-========================================
+# Prices: Python price handling for humans
 
 [![codecov](https://codecov.io/github/mirumee/prices/graph/badge.svg?token=MPaL82nVJU)](https://codecov.io/github/mirumee/prices)
 ![PyPI - Version](https://img.shields.io/pypi/v/prices)
@@ -87,6 +86,15 @@ price2 = TaxedMoney(Money(7, 'INR'), Money(7, 'INR'))
 price1 + price2
 # ValueError: Cannot add amount in 'BTC' to 'INR'
 ```
+
+## Prices ecosystem
+
+| Repository | Description |
+| ---------- | ----------- |
+| [prices](https://github.com/mirumee/prices) | Python price handling for humans. |
+| [django-prices](https://github.com/mirumee/django-prices) | Django fields for the `prices` module. |
+| [django-prices-vatlayer](https://github.com/mirumee/django-prices-vatlayer) | Vatlayer API support for `django-prices`. |
+| [django-prices-openexchangerates](https://github.com/mirumee/django-prices-openexchangerates) | openexchangerates.org support for `django-prices`. |
 
 ---
 
