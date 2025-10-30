@@ -6,7 +6,7 @@ Addable: TypeAlias = "Money | MoneyRange"
 
 
 class MoneyRange:
-    """A taxed money range."""
+    """A money range."""
 
     __slots__ = ("start", "stop")
 
